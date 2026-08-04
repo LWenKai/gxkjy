@@ -1,0 +1,56 @@
+name: Deploy to Tencent Cloud
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy gxkjy to server
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install sshpass
+        run: sudo apt-get update && sudo apt-get install -y sshpass
+
+      # 注意：部署用密码方式登录服务器（SSH_PRIVATE_KEY 未使用）。
+      # 若服务器禁用密码登录，请改用 SSH 私钥（见下方注释）。
+      - name: Sync code to server via rsync
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
+        run: |
+          # 安装 rsync（ubuntu-latest 自带，保险起见）
+          which rsync || sudo apt-get install -y rsync
+
+          # 准备 SSH 指纹信任（避免 known_hosts 交互）
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts
+
+          rsync -az --delete \
+            --exclude='.env' \
+            --exclude='.env.example' \
+            --exclude='uploads/' \
+            --exclude='backups/' \
+            --exclude='.runtime/' \
+            --exclude='.git/' \
+            ./ "$SERVER_USER@$SERVER_HOST:/opt/gxkjy/"
+
+      - name: Rebuild & restart via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script_stop: true
+          script: |
+            set -e
+            cd /opt/gxkjy
+            echo "==> 重新构建并重启服务"
+            docker compose -f deploy/docker-compose.yml up -d --build
+            echo "==> 部署完成，当前容器状态:"
+            docker compose -f deploy/docker-compose.yml ps
