@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>登录｜谷芯快检云</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <main class="app-shell" data-od-id="login-shell">
+    
+<section class="page" data-od-id="login-page">
+  <div style="height:40px"></div>
+  <div class="status-hero">
+    <div class="icon-box" style="margin:0 auto 16px;width:64px;height:64px">谷</div>
+    <h1 class="title" data-od-id="login-title">谷芯快检云</h1>
+    <p class="subtitle">检测、开证、打印管理</p>
+  </div>
+  <form class="card stack" data-od-id="login-form">
+    <div class="field"><label>企业账号</label><input value="demo@guxin" autocomplete="username" data-od-id="account-input"></div>
+    <div class="field"><label>登录密码</label><input type="password" value="123456" autocomplete="current-password" data-od-id="password-input"></div>
+    <label class="row-start label"><input type="checkbox" checked> 记住账号</label>
+    <a class="btn btn-primary" href="home.html" data-od-id="login-button">登录</a>
+    <button type="button" class="btn btn-secondary" data-action="toast" data-message="登录失败，请检查账号或密码" data-od-id="login-error-button">模拟登录失败</button>
+    <button type="button" class="btn btn-secondary" data-action="toast" data-message="网络异常，请稍后重试" data-od-id="network-error-button">模拟网络异常</button>
+  </form>
+  <button class="btn btn-secondary" style="width:100%;margin-top:16px" data-action="modal" data-target="expire-modal" data-od-id="expire-modal-button">查看服务提醒</button>
+</section>
+<div class="modal-backdrop show" id="expire-modal">
+  <div class="modal stack" data-od-id="expire-modal">
+    <h2 class="title">服务即将到期</h2>
+    <p class="subtitle">当前企业服务将在 2026-08-20 到期，请提前联系谷芯科技续期，避免影响开证和打印。</p>
+    <button class="btn btn-primary" data-action="close" data-target="expire-modal">知道了</button>
+  </div>
+</div>
+  </main>
+  <script src="../app.js"></script>
+</body>
+</html>

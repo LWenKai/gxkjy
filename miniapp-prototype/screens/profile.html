@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>我的｜谷芯快检云</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <main class="app-shell" data-od-id="app-shell">
+    
+<section class="page" data-od-id="profile-page">
+  <header class="topbar"><strong>我的</strong><button class="btn btn-secondary" data-action="toast" data-message="已使用缓存企业信息">刷新</button></header>
+  <section data-od-id="profile-section-1" class="card section stack"><h1 class="title">山西谷芯示范食品有限公司</h1><p class="subtitle">联系人：王经理 · 13363412262</p><p class="subtitle">地址：山西省太原市小店区示范园区</p><span class="badge warn">服务有效至 2026-08-20</span></section>
+  <section data-od-id="profile-section-2" class="section stack">
+    <a class="list-card" href="products.html">常用产品</a>
+    <a class="list-card" href="printers.html">打印机管理</a>
+    <a class="list-card" href="help.html">使用帮助</a>
+    <button class="list-card" data-action="toast" data-message="客服电话：13363412262">联系客服</button>
+    <button class="list-card" data-action="modal" data-target="password-modal">修改密码</button>
+    <button class="list-card" data-action="confirm" data-message="确认清除本机记住的账号？" data-done="账号已清除">清除账号</button>
+    <button class="list-card" data-action="confirm" data-message="确认退出登录？" data-done="已退出登录">退出登录</button>
+  </section>
+</section>
+<nav class="bottom-nav" data-od-id="bottom-nav">
+  <a href="home.html" class="" data-od-id="nav-home">首页</a>
+  <a href="detections.html" class="" data-od-id="nav-detections">检测</a>
+  <a href="certificate-create.html" class="" data-od-id="nav-create">开证</a>
+  <a href="profile.html" class="active" data-od-id="nav-profile">我的</a>
+</nav>
+<div class="modal-backdrop" id="password-modal"><div class="modal stack"><h2 class="title">修改密码</h2><div class="field"><label>原密码</label><input type="password"></div><div class="field"><label>新密码</label><input type="password"></div><button class="btn btn-primary" data-action="close" data-target="password-modal">保存</button></div></div>
+  </main>
+  <script src="../app.js"></script>
+</body>
+</html>

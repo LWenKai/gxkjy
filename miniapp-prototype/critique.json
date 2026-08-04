@@ -1,0 +1,26 @@
+{
+  "kind": "critique-panel",
+  "score": 4.4,
+  "axes": {
+    "clarity": {
+      "score": 5,
+      "notes": "入口页已从文件目录升级为按业务闭环评审：进入与工作台、检测到开证、证书打印、扫码公开页。"
+    },
+    "hierarchy": {
+      "score": 4,
+      "notes": "先定义审美标准，再进入页面分组，右侧保留首页手机预览作为第一检查点。"
+    },
+    "typography": {
+      "score": 4,
+      "notes": "使用 Neutral Modern 字体和字号层级，移动端可读。"
+    },
+    "motion": {
+      "score": 4,
+      "notes": "交互状态使用短反馈、弹窗和按钮 loading，没有过度动效。"
+    },
+    "brand": {
+      "score": 5,
+      "notes": "入口页明确品牌气质为本地靠谱、响应及时、低学习成本，避免夸大认证和模板化口号。"
+    }
+  }
+}

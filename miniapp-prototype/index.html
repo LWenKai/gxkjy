@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>谷芯快检云小程序原型</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="launcher" data-od-id="prototype-launcher">
+    <section class="launcher-hero" data-od-id="director-hero">
+      <div>
+        <p class="badge">Creative Director · 谷芯快检云小程序</p>
+        <h1 class="title launcher-title">食品安全快检场景里，好的界面应该让一线人员少想一步。</h1>
+        <p class="subtitle launcher-lead">这套原型面向食品企业工作人员、采购方和监管查看者。设计目标不是炫技，而是把“检测结果 → 开具合格证 → 打印/分享 → 扫码核验”的闭环做得清楚、可信、可落地。</p>
+      </div>
+      <aside class="card director-card" data-od-id="design-standard-card">
+        <span class="badge success">审美标准</span>
+        <h2 class="title">务实、可信、低学习成本</h2>
+        <p class="subtitle">高信息密度但不压迫；状态先于装饰；按钮语言直接说明下一步；避免夸大认证、AI 渐变、空卡片和模板化口号。</p>
+      </aside>
+    </section>
+
+    <section class="director-grid" data-od-id="director-criteria">
+      <article class="card">
+        <span class="label">受众</span>
+        <h2 class="title">非专业一线用户</h2>
+        <p class="subtitle">年龄跨度大，主要目标是快速完成查看、开证、打印和联系客服。</p>
+      </article>
+      <article class="card">
+        <span class="label">品牌气质</span>
+        <h2 class="title">本地靠谱、响应及时</h2>
+        <p class="subtitle">表达稳妥，不包装成大平台，不使用夸大的认证话术或容易误导的字眼。</p>
+      </article>
+      <article class="card">
+        <span class="label">视觉标准</span>
+        <h2 class="title">Neutral Modern</h2>
+        <p class="subtitle">白底、细边框、克制蓝色动作点，绿色/黄色/红色只用于真实状态。</p>
+      </article>
+      <article class="card">
+        <span class="label">交互标准</span>
+        <h2 class="title">每个风险都有反馈</h2>
+        <p class="subtitle">搜索、筛选、上传失败、打印异常、作废确认、退出确认都应有明确中文反馈。</p>
+      </article>
+    </section>
+
+    <section class="workflow-shell" data-od-id="workflow-overview">
+      <div class="workflow-main">
+        <div class="row">
+          <div>
+            <p class="badge">评审路径</p>
+            <h2 class="title">按业务闭环查看，而不是按文件名查找</h2>
+          </div>
+          <a class="btn btn-secondary" href="screens/home.html" data-od-id="open-home">打开首页</a>
+        </div>
+
+        <section class="flow-group" data-od-id="flow-account">
+          <div class="flow-heading"><span class="label">01</span><h3 class="title">进入与工作台</h3></div>
+          <div class="launcher-grid compact">
+            <a class="card screen-link" href="screens/login.html" data-od-id="screen-login"><span class="badge">账号</span><h2 class="title">登录页</h2><p class="subtitle">企业账号登录、失败提示、服务到期提醒</p></a>
+            <a class="card screen-link" href="screens/home.html" data-od-id="screen-home"><span class="badge">工作台</span><h2 class="title">首页</h2><p class="subtitle">核心指标、最近记录和主要入口</p></a>
+            <a class="card screen-link" href="screens/profile.html" data-od-id="screen-profile"><span class="badge">账户</span><h2 class="title">我的</h2><p class="subtitle">企业资料、服务期限、客服与退出</p></a>
+            <a class="card screen-link" href="screens/help.html" data-od-id="screen-help"><span class="badge">支持</span><h2 class="title">使用帮助</h2><p class="subtitle">短文案说明，避免技术词</p></a>
+          </div>
+        </section>
+
+        <section class="flow-group" data-od-id="flow-detection">
+          <div class="flow-heading"><span class="label">02</span><h3 class="title">检测结果到开证</h3></div>
+          <div class="launcher-grid compact">
+            <a class="card screen-link" href="screens/detections.html" data-od-id="screen-detections"><span class="badge">列表</span><h2 class="title">检测记录</h2><p class="subtitle">搜索、筛选、可开证状态</p></a>
+            <a class="card screen-link" href="screens/detection-detail.html" data-od-id="screen-detection-detail"><span class="badge">明细</span><h2 class="title">检测详情</h2><p class="subtitle">检测项目明细和开证入口</p></a>
+            <a class="card screen-link" href="screens/select-detection.html" data-od-id="screen-select-detection"><span class="badge">选择</span><h2 class="title">选择检测记录</h2><p class="subtitle">只展示合格且可开证记录</p></a>
+            <a class="card screen-link" href="screens/certificate-create.html" data-od-id="screen-certificate-create"><span class="badge">表单</span><h2 class="title">开具合格证</h2><p class="subtitle">依据切换、上传和提交校验</p></a>
+          </div>
+        </section>
+
+        <section class="flow-group" data-od-id="flow-certificate">
+          <div class="flow-heading"><span class="label">03</span><h3 class="title">证书、打印与复用资料</h3></div>
+          <div class="launcher-grid compact">
+            <a class="card screen-link" href="screens/certificate-success.html" data-od-id="screen-certificate-success"><span class="badge">结果</span><h2 class="title">生成成功</h2><p class="subtitle">查看、打印、返回首页</p></a>
+            <a class="card screen-link" href="screens/certificates.html" data-od-id="screen-certificates"><span class="badge">记录</span><h2 class="title">合格证记录</h2><p class="subtitle">搜索和状态筛选</p></a>
+            <a class="card screen-link" href="screens/certificate-detail.html" data-od-id="screen-certificate-detail"><span class="badge">详情</span><h2 class="title">合格证详情</h2><p class="subtitle">扫码页、打印、作废确认</p></a>
+            <a class="card screen-link" href="screens/print-preview.html" data-od-id="screen-print-preview"><span class="badge">标签</span><h2 class="title">打印预览</h2><p class="subtitle">60×80mm 标签预览和打印提示</p></a>
+            <a class="card screen-link" href="screens/printers.html" data-od-id="screen-printers"><span class="badge">设备</span><h2 class="title">打印机管理</h2><p class="subtitle">连接、测试打印和异常状态</p></a>
+            <a class="card screen-link" href="screens/products.html" data-od-id="screen-products"><span class="badge">资料</span><h2 class="title">常用产品</h2><p class="subtitle">新增、编辑、删除确认</p></a>
+          </div>
+        </section>
+
+        <section class="flow-group" data-od-id="flow-public">
+          <div class="flow-heading"><span class="label">04</span><h3 class="title">扫码公开页</h3></div>
+          <div class="launcher-grid compact">
+            <a class="card screen-link" href="screens/public-valid.html" data-od-id="screen-public-valid"><span class="badge success">有效</span><h2 class="title">扫码有效页</h2><p class="subtitle">对外可信查询页</p></a>
+            <a class="card screen-link" href="screens/public-void.html" data-od-id="screen-public-void"><span class="badge warn">作废</span><h2 class="title">扫码作废页</h2><p class="subtitle">明确不可继续作为凭证</p></a>
+            <a class="card screen-link" href="screens/public-invalid.html" data-od-id="screen-public-invalid"><span class="badge danger">无效</span><h2 class="title">扫码无效页</h2><p class="subtitle">正式、清楚，不像报错页</p></a>
+          </div>
+        </section>
+      </div>
+
+      <aside class="preview-rail" data-od-id="preview-rail">
+        <div class="card stack">
+          <span class="badge">实时预览</span>
+          <h2 class="title">首页作为第一检查点</h2>
+          <p class="subtitle">先判断工作台能否承载今日检测、可开证、证书记录和打印机状态，再进入细节页。</p>
+        </div>
+        <section class="phone-frame" data-od-id="phone-preview">
+          <iframe src="screens/home.html" title="首页预览"></iframe>
+        </section>
+      </aside>
+    </section>
+  </main>
+</body>
+</html>

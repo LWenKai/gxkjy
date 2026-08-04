@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "kind": "html",
+  "title": "miniapp-prototype/screens/products.html",
+  "entry": "miniapp-prototype/screens/products.html",
+  "renderer": "html",
+  "status": "complete",
+  "exports": [
+    "html",
+    "pdf",
+    "zip"
+  ],
+  "createdAt": "2026-07-14T10:13:48.376Z",
+  "updatedAt": "2026-07-14T10:13:48.376Z",
+  "metadata": {
+    "inferred": true,
+    "reconciled": true
+  }
+}

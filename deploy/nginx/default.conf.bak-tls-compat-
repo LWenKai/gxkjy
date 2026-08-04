@@ -1,0 +1,186 @@
+server {
+  listen 80;
+  server_name api.gxkjy.com admin.gxkjy.com cert.gxkjy.com;
+  return 301 https://$host$request_uri;
+}
+
+server {
+  listen 80;
+  server_name www.gxkjy.com gxkjy.com;
+  client_max_body_size 20m;
+
+  location / {
+    proxy_pass http://guxin-website:80;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto http;
+  }
+}
+
+server {
+  listen 80 default_server;
+  server_name _;
+  client_max_body_size 20m;
+
+  location = / {
+    return 302 /admin/;
+  }
+
+  location /api/ {
+    proxy_pass http://guxin-backend:3000;
+    proxy_connect_timeout 10s;
+    proxy_send_timeout 60s;
+    proxy_read_timeout 60s;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
+  location /admin/ {
+    proxy_pass http://guxin-admin-web:80/;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
+  location /c/ {
+    proxy_pass http://guxin-public-h5:80;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
+  location /assets/ {
+    proxy_pass http://guxin-public-h5:80;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+}
+
+server {
+  listen 443 ssl;
+  http2 on;
+  server_name api.gxkjy.com;
+  client_max_body_size 20m;
+
+  ssl_certificate /etc/letsencrypt/live/api.gxkjy.com/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/api.gxkjy.com/privkey.pem;
+  ssl_session_cache shared:SSL:10m;
+  ssl_session_timeout 10m;
+  ssl_protocols TLSv1.2 TLSv1.3;
+
+  location /api/ {
+    proxy_pass http://guxin-backend:3000;
+    proxy_connect_timeout 10s;
+    proxy_send_timeout 60s;
+    proxy_read_timeout 60s;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto https;
+  }
+
+  location /uploads/ {
+    alias /var/www/uploads/;
+    try_files $uri =404;
+    add_header X-Content-Type-Options nosniff always;
+    add_header Cache-Control "public, max-age=86400" always;
+  }
+
+  location / {
+    return 404;
+  }
+}
+
+server {
+  listen 443 ssl;
+  http2 on;
+  server_name admin.gxkjy.com;
+  client_max_body_size 20m;
+
+  ssl_certificate /etc/letsencrypt/live/api.gxkjy.com/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/api.gxkjy.com/privkey.pem;
+  ssl_session_cache shared:SSL:10m;
+  ssl_session_timeout 10m;
+  ssl_protocols TLSv1.2 TLSv1.3;
+
+  location = /website-preview {
+    return 301 /website-preview/;
+  }
+
+  location /website-preview/assets/ {
+    proxy_pass http://guxin-website:80/assets/;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto https;
+  }
+
+  location /website-preview/ {
+    proxy_pass http://guxin-website:80/;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto https;
+    sub_filter_once off;
+    sub_filter 'src="/assets/' 'src="/website-preview/assets/';
+    sub_filter 'href="/assets/' 'href="/website-preview/assets/';
+  }
+
+  location /api/ {
+    proxy_pass http://guxin-backend:3000;
+    proxy_connect_timeout 10s;
+    proxy_send_timeout 60s;
+    proxy_read_timeout 60s;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto https;
+  }
+
+  location / {
+    proxy_pass http://guxin-admin-web:80;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto https;
+  }
+}
+
+server {
+  listen 443 ssl;
+  http2 on;
+  server_name cert.gxkjy.com;
+  client_max_body_size 20m;
+
+  ssl_certificate /etc/letsencrypt/live/api.gxkjy.com/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/api.gxkjy.com/privkey.pem;
+  ssl_session_cache shared:SSL:10m;
+  ssl_session_timeout 10m;
+  ssl_protocols TLSv1.2 TLSv1.3;
+
+  location /api/ {
+    proxy_pass http://guxin-backend:3000;
+    proxy_connect_timeout 10s;
+    proxy_send_timeout 60s;
+    proxy_read_timeout 60s;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto https;
+  }
+
+  location / {
+    proxy_pass http://guxin-public-h5:80;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto https;
+  }
+}

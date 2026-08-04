@@ -1,0 +1,22 @@
+node_modules/
+dist/
+.output/
+.vite/
+coverage/
+.env
+.env.local
+*.log
+deploy/mysql/data/
+deploy/backup/*.sql
+deploy/backup/*.gz
+deploy/nginx/certs/*
+!deploy/nginx/certs/.gitkeep
+backend/src/generated/prisma/
+.runtime/
+
+# 大数据/敏感目录(本地同步时已排除)
+uploads/
+backups/
+
+# 小程序私有配置(含本地工具设置)
+project.private.config.json

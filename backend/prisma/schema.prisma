@@ -1,0 +1,1050 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum AdminUserStatus {
+  normal
+  disabled
+}
+
+enum AdminRole {
+  super_admin
+  admin
+}
+
+enum CompanyStatus {
+  normal
+  disabled
+}
+
+enum AccountStatus {
+  normal
+  disabled
+}
+
+enum ManufacturerIntegrationType {
+  http_api
+  mqtt
+  tcp_socket
+}
+
+enum ManufacturerInterfaceStatus {
+  normal
+  disabled
+}
+
+enum DeviceStatus {
+  normal
+  disabled
+}
+
+enum CertificateType {
+  agri_commitment_certificate
+  enterprise_quick_test_label
+}
+
+enum DetectionRecordStatus {
+  normal
+  marked_abnormal
+  hidden
+  voided
+}
+
+enum DetectionResult {
+  pass
+  fail
+}
+
+enum AiInterpretationResult {
+  negative
+  positive
+  unknown
+  invalid
+}
+
+enum AiInterpretationStatus {
+  CREATED
+  PROCESSING
+  SUCCESS
+  FAILED
+  CONFIRMING
+  CONFIRMED
+  CANCELLED
+}
+
+enum CertificateStatus {
+  normal
+  voided
+}
+
+enum ProductStatus {
+  normal
+  disabled
+}
+
+enum UploadLogResult {
+  success
+  duplicate
+  invalid_signature
+  unbound_device
+  validation_error
+  failed
+}
+
+enum PrintClient {
+  miniapp
+  admin
+  system
+}
+
+enum PrintStatus {
+  success
+  failed
+  simulated
+}
+
+enum PrinterConnectionType {
+  mock
+  bluetooth
+  usb
+  wifi
+}
+
+enum PrinterRuntimeStatus {
+  inactive
+  available
+  connected
+  disabled
+}
+
+enum OperatorType {
+  admin
+  company_user
+  manufacturer
+  system
+}
+
+enum CustomerType {
+  DELIVERY_COMPANY
+  FOOD_PROCESSING
+  COOPERATIVE
+  FARM_BASE
+  CANTEEN
+  MARKET
+  GOVERNMENT
+  OTHER
+}
+
+enum CustomerSource {
+  DOUYIN
+  WECHAT
+  OLD_CUSTOMER
+  GOVERNMENT_RELATION
+  SUPPLIER_REFERRAL
+  ACTIVE_DEVELOP
+  OTHER
+}
+
+enum CustomerStatus {
+  NEW
+  CONTACTED
+  NEED_CONFIRMED
+  QUOTED
+  NEGOTIATING
+  WON
+  FOLLOW_UP
+  LOST
+}
+
+enum CustomerValueLevel {
+  PROJECT
+  REPEAT
+  NORMAL
+  UNKNOWN
+}
+
+enum CustomerNeedType {
+  EQUIPMENT
+  LAB_BUILD
+  CONSUMABLE
+  CERTIFICATE
+  REPAIR
+}
+
+enum CustomerFollowType {
+  PHONE
+  WECHAT
+  VISIT
+  OTHER
+}
+
+enum CustomerQuoteStatus {
+  WAITING
+  FOLLOWING
+  SUCCESS
+  FAILED
+}
+
+enum SalesProductCategory {
+  DETECTION_EQUIPMENT
+  ENZYME_REAGENT
+  COLLOIDAL_GOLD_CARD
+  LAB_CONSUMABLE
+  CERTIFICATE_PRINTER
+  PRINTING_CONSUMABLE
+  DATA_TERMINAL
+  SOFTWARE
+  SERVICE
+  OTHER
+}
+
+enum SalesProductPackageType {
+  BASIC
+  UPGRADE
+  PREMIUM
+  CUSTOM
+}
+
+enum PurchasePaymentStatus {
+  UNPAID
+  PAID
+  PARTIALLY_PAID
+  REFUNDED
+}
+
+enum PurchaseDeliveryStatus {
+  PENDING
+  PURCHASING
+  READY_TO_SHIP
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum RepurchaseStatus {
+  PENDING
+  CONTACTED
+  REPURCHASED
+  NO_NEED
+  CANCELLED
+}
+
+enum SalesQuoteStatus {
+  DRAFT
+  GENERATED
+  SENT
+  CONFIRMING
+  ACCEPTED
+  LOST
+  EXPIRED
+  SUPERSEDED
+}
+
+model AdminUser {
+  id           BigInt          @id @default(autoincrement())
+  username     String          @unique @db.VarChar(60)
+  passwordHash String          @map("password_hash") @db.VarChar(255)
+  realName     String?         @map("real_name") @db.VarChar(60)
+  role         AdminRole       @default(super_admin)
+  status       AdminUserStatus @default(normal)
+  lastLoginAt  DateTime?       @map("last_login_at")
+  createdAt    DateTime        @default(now()) @map("created_at")
+  updatedAt    DateTime        @updatedAt @map("updated_at")
+
+  @@map("admin_users")
+}
+
+model Customer {
+  id           BigInt             @id @default(autoincrement())
+  customerNo   String             @unique @map("customer_no") @db.VarChar(40)
+  companyName  String             @map("company_name") @db.VarChar(160)
+  contactName  String?            @map("contact_name") @db.VarChar(60)
+  phone        String?            @db.VarChar(30)
+  wechat       String?            @db.VarChar(80)
+  province     String?            @db.VarChar(40)
+  city         String?            @db.VarChar(40)
+  address      String?            @db.VarChar(255)
+  customerType CustomerType       @default(OTHER) @map("customer_type")
+  source       CustomerSource     @default(OTHER)
+  status       CustomerStatus     @default(NEW)
+  valueLevel   CustomerValueLevel @default(UNKNOWN) @map("value_level")
+  remark       String?            @db.Text
+  deletedAt    DateTime?          @map("deleted_at")
+  createdAt    DateTime           @default(now()) @map("created_at")
+  updatedAt    DateTime           @updatedAt @map("updated_at")
+
+  needs         CustomerNeed[]
+  devices       CustomerDevice[]
+  followRecords CustomerFollowRecord[]
+  quotes        CustomerQuote[]
+  salesQuotes   SalesQuote[]
+  purchases     CustomerPurchase[]
+  purchaseOrders CustomerPurchaseOrder[]
+
+  @@index([companyName])
+  @@index([phone])
+  @@index([customerType])
+  @@index([source])
+  @@index([status])
+  @@index([valueLevel])
+  @@index([deletedAt])
+  @@map("customers")
+}
+
+model CustomerNeed {
+  id              BigInt           @id @default(autoincrement())
+  customerId      BigInt           @map("customer_id")
+  needType        CustomerNeedType @map("need_type")
+  productCategory String?          @map("product_category") @db.VarChar(80)
+  testProject     String?          @map("test_project") @db.VarChar(200)
+  remark          String?          @db.Text
+  deletedAt       DateTime?        @map("deleted_at")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  @@index([customerId])
+  @@index([needType])
+  @@index([deletedAt])
+  @@map("customer_needs")
+}
+
+model CustomerDevice {
+  id           BigInt    @id @default(autoincrement())
+  customerId   BigInt    @map("customer_id")
+  manufacturer String?   @db.VarChar(120)
+  model        String?   @db.VarChar(120)
+  deviceCount  Int       @default(1) @map("device_count")
+  purchaseDate DateTime? @map("purchase_date")
+  imageUrl     String?   @map("image_url") @db.VarChar(500)
+  remark       String?   @db.Text
+  deletedAt    DateTime? @map("deleted_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  @@index([customerId])
+  @@index([deletedAt])
+  @@map("customer_devices")
+}
+
+model CustomerFollowRecord {
+  id             BigInt             @id @default(autoincrement())
+  customerId     BigInt             @map("customer_id")
+  followTime     DateTime           @map("follow_time")
+  followType     CustomerFollowType @map("follow_type")
+  content        String             @db.Text
+  nextFollowDate DateTime?          @map("next_follow_date")
+  createdBy      BigInt?            @map("created_by")
+  deletedAt      DateTime?          @map("deleted_at")
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  @@index([customerId])
+  @@index([followTime])
+  @@index([nextFollowDate])
+  @@index([deletedAt])
+  @@map("customer_follow_records")
+}
+
+model CustomerQuote {
+  id          BigInt              @id @default(autoincrement())
+  customerId  BigInt              @map("customer_id")
+  productName String              @map("product_name") @db.VarChar(160)
+  amount      Decimal?            @db.Decimal(12, 2)
+  quoteDate   DateTime            @map("quote_date")
+  status      CustomerQuoteStatus @default(WAITING)
+  remark      String?             @db.Text
+  deletedAt   DateTime?           @map("deleted_at")
+  createdAt   DateTime            @default(now()) @map("created_at")
+  updatedAt   DateTime            @updatedAt @map("updated_at")
+
+  customer Customer @relation(fields: [customerId], references: [id])
+  attachments CustomerQuoteAttachment[]
+
+  @@index([customerId])
+  @@index([quoteDate])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("customer_quotes")
+}
+
+model CustomerQuoteAttachment {
+  id            BigInt    @id @default(autoincrement())
+  quoteId       BigInt    @map("quote_id")
+  originalName  String    @map("original_name") @db.VarChar(255)
+  storedName    String    @map("stored_name") @db.VarChar(255)
+  filePath      String    @map("file_path") @db.VarChar(500)
+  mimeType      String    @map("mime_type") @db.VarChar(120)
+  fileExtension String    @map("file_extension") @db.VarChar(20)
+  fileSize      BigInt    @map("file_size")
+  uploadedBy    BigInt?   @map("uploaded_by")
+  deletedAt     DateTime? @map("deleted_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  quote CustomerQuote @relation(fields: [quoteId], references: [id])
+
+  @@index([quoteId])
+  @@index([deletedAt])
+  @@map("customer_quote_attachments")
+}
+
+model SalesQuote {
+  id               BigInt           @id @default(autoincrement())
+  quoteNo          String           @unique @map("quote_no") @db.VarChar(60)
+  quoteSeriesNo    String           @map("quote_series_no") @db.VarChar(40)
+  versionNo        Int              @default(1) @map("version_no")
+  customerId       BigInt           @map("customer_id")
+  sourceQuoteId    BigInt?          @map("source_quote_id")
+  sourceOrderItemId BigInt?         @map("source_order_item_id")
+  quoteDate        DateTime         @map("quote_date")
+  validUntil       DateTime?        @map("valid_until")
+  status           SalesQuoteStatus @default(DRAFT)
+  isTaxIncluded    Boolean          @default(true) @map("is_tax_included")
+  invoiceNote      String?          @map("invoice_note") @db.Text
+  shippingNote     String?          @map("shipping_note") @db.Text
+  deliveryNote     String?          @map("delivery_note") @db.Text
+  paymentNote      String?          @map("payment_note") @db.Text
+  afterSalesNote   String?          @map("after_sales_note") @db.Text
+  remark           String?          @db.Text
+  totalAmount      Decimal          @default(0.00) @map("total_amount") @db.Decimal(12, 2)
+  totalAmountCn    String?          @map("total_amount_cn") @db.VarChar(120)
+  pdfPath          String?          @map("pdf_path") @db.VarChar(500)
+  excelPath        String?          @map("excel_path") @db.VarChar(500)
+  createdBy        BigInt?          @map("created_by")
+  deletedAt        DateTime?        @map("deleted_at")
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+
+  customer Customer @relation(fields: [customerId], references: [id])
+  items    SalesQuoteItem[]
+  orders   CustomerPurchaseOrder[]
+
+  @@index([customerId])
+  @@index([quoteSeriesNo])
+  @@index([quoteDate])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("sales_quotes")
+}
+
+model SalesQuoteItem {
+  id                    BigInt   @id @default(autoincrement())
+  salesQuoteId          BigInt   @map("sales_quote_id")
+  salesProductId        BigInt?  @map("sales_product_id")
+  sourcePackageId       BigInt?  @map("source_package_id")
+  sourcePackageNameSnapshot String? @map("source_package_name_snapshot") @db.VarChar(160)
+  productNameSnapshot   String   @map("product_name_snapshot") @db.VarChar(160)
+  brandSnapshot         String?  @map("brand_snapshot") @db.VarChar(120)
+  modelSnapshot         String?  @map("model_snapshot") @db.VarChar(120)
+  specificationSnapshot String?  @map("specification_snapshot") @db.VarChar(255)
+  unitSnapshot          String?  @map("unit_snapshot") @db.VarChar(30)
+  quantity              Decimal  @default(1.00) @db.Decimal(12, 2)
+  unitPrice             Decimal  @default(0.00) @map("unit_price") @db.Decimal(12, 2)
+  subtotal              Decimal  @default(0.00) @db.Decimal(12, 2)
+  itemRemark            String?  @map("item_remark") @db.Text
+  sortOrder             Int      @default(0) @map("sort_order")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  salesQuote  SalesQuote    @relation(fields: [salesQuoteId], references: [id])
+  salesProduct SalesProduct? @relation(fields: [salesProductId], references: [id])
+  sourcePackage SalesProductPackage? @relation(fields: [sourcePackageId], references: [id])
+
+  @@index([salesQuoteId])
+  @@index([salesProductId])
+  @@index([sourcePackageId])
+  @@map("sales_quote_items")
+}
+
+model CustomerPurchase {
+  id                 BigInt    @id @default(autoincrement())
+  customerId         BigInt    @map("customer_id")
+  productName        String    @map("product_name") @db.VarChar(160)
+  quantity           String?   @db.VarChar(80)
+  amount             Decimal?  @db.Decimal(12, 2)
+  purchaseDate       DateTime  @map("purchase_date")
+  expectedCycleDays  Int?      @map("expected_cycle_days")
+  nextRepurchaseDate DateTime? @map("next_repurchase_date")
+  remark             String?   @db.Text
+  deletedAt          DateTime? @map("deleted_at")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  @@index([customerId])
+  @@index([purchaseDate])
+  @@index([nextRepurchaseDate])
+  @@index([deletedAt])
+  @@map("customer_purchases")
+}
+
+model SalesProduct {
+  id                 BigInt               @id @default(autoincrement())
+  productNo          String               @unique @map("product_no") @db.VarChar(40)
+  name               String               @db.VarChar(160)
+  category           SalesProductCategory @default(OTHER)
+  brand              String?              @db.VarChar(120)
+  model              String?              @db.VarChar(120)
+  salesModel         String?              @map("sales_model") @db.VarChar(80)
+  specification      String?              @db.VarChar(255)
+  unit               String               @default("件") @db.VarChar(30)
+  defaultSalePrice   Decimal?             @map("default_sale_price") @db.Decimal(12, 2)
+  referenceCostPrice Decimal?             @map("reference_cost_price") @db.Decimal(12, 2)
+  defaultCycleDays   Int?                 @map("default_cycle_days")
+  repeatReminderEnabled Boolean           @default(false) @map("repeat_reminder_enabled")
+  referenceCycleDays Int?                  @map("reference_cycle_days")
+  defaultReminderDaysBefore Int?           @default(7) @map("default_reminder_days_before")
+  imageUrl           String?              @map("image_url") @db.VarChar(500)
+  description        String?              @db.Text
+  remark             String?              @db.Text
+  isActive           Boolean              @default(true) @map("is_active")
+  sortOrder          Int                  @default(0) @map("sort_order")
+  deletedAt          DateTime?            @map("deleted_at")
+  createdAt          DateTime             @default(now()) @map("created_at")
+  updatedAt          DateTime             @updatedAt @map("updated_at")
+
+  purchaseItems CustomerPurchaseItem[]
+  quoteItems SalesQuoteItem[]
+  packageItems SalesProductPackageItem[]
+
+  @@index([category])
+  @@index([isActive])
+  @@index([sortOrder])
+  @@index([deletedAt])
+  @@map("sales_products")
+}
+
+model SalesProductPackage {
+  id           BigInt                  @id @default(autoincrement())
+  packageNo    String                  @unique @map("package_no") @db.VarChar(40)
+  name         String                  @db.VarChar(160)
+  type         SalesProductPackageType @default(CUSTOM)
+  description  String?                 @db.Text
+  isActive     Boolean                 @default(true) @map("is_active")
+  sortOrder    Int                     @default(0) @map("sort_order")
+  remark       String?                 @db.Text
+  deletedAt    DateTime?               @map("deleted_at")
+  createdAt    DateTime                @default(now()) @map("created_at")
+  updatedAt    DateTime                @updatedAt @map("updated_at")
+
+  items      SalesProductPackageItem[]
+  quoteItems SalesQuoteItem[]
+
+  @@index([type])
+  @@index([isActive])
+  @@index([sortOrder])
+  @@index([deletedAt])
+  @@map("sales_product_packages")
+}
+
+model SalesProductPackageItem {
+  id                    BigInt   @id @default(autoincrement())
+  packageId             BigInt   @map("package_id")
+  salesProductId        BigInt?  @map("sales_product_id")
+  productNameSnapshot   String   @map("product_name_snapshot") @db.VarChar(160)
+  brandSnapshot         String?  @map("brand_snapshot") @db.VarChar(120)
+  modelSnapshot         String?  @map("model_snapshot") @db.VarChar(120)
+  specificationSnapshot String?  @map("specification_snapshot") @db.VarChar(255)
+  unitSnapshot          String?  @map("unit_snapshot") @db.VarChar(30)
+  quantity              Decimal  @default(1.00) @db.Decimal(12, 2)
+  unitPrice             Decimal  @default(0.00) @map("unit_price") @db.Decimal(12, 2)
+  subtotal              Decimal  @default(0.00) @db.Decimal(12, 2)
+  itemRemark            String?  @map("item_remark") @db.Text
+  sortOrder             Int      @default(0) @map("sort_order")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  package     SalesProductPackage @relation(fields: [packageId], references: [id])
+  salesProduct SalesProduct?      @relation(fields: [salesProductId], references: [id])
+
+  @@index([packageId])
+  @@index([salesProductId])
+  @@map("sales_product_package_items")
+}
+
+model CustomerPurchaseOrder {
+  id             BigInt                 @id @default(autoincrement())
+  orderNo        String                 @unique @map("order_no") @db.VarChar(40)
+  customerId     BigInt                 @map("customer_id")
+  salesQuoteId   BigInt?                @map("sales_quote_id")
+  quoteNoSnapshot String?               @map("quote_no_snapshot") @db.VarChar(60)
+  purchaseDate   DateTime               @map("purchase_date")
+  dealDate        DateTime?             @map("deal_date")
+  totalAmount    Decimal                @default(0.00) @map("total_amount") @db.Decimal(12, 2)
+  paymentStatus  PurchasePaymentStatus  @default(UNPAID) @map("payment_status")
+  deliveryStatus PurchaseDeliveryStatus @default(PENDING) @map("delivery_status")
+  expectedDeliveryDate DateTime?        @map("expected_delivery_date")
+  actualDeliveryDate   DateTime?        @map("actual_delivery_date")
+  expressCompany       String?          @map("express_company") @db.VarChar(80)
+  trackingNo           String?          @map("tracking_no") @db.VarChar(80)
+  invoiceIssued        Boolean          @default(false) @map("invoice_issued")
+  invoiceType          String?          @map("invoice_type") @db.VarChar(80)
+  remark         String?                @db.Text
+  createdBy      BigInt?                @map("created_by")
+  deletedAt      DateTime?              @map("deleted_at")
+  createdAt      DateTime               @default(now()) @map("created_at")
+  updatedAt      DateTime               @updatedAt @map("updated_at")
+
+  customer Customer @relation(fields: [customerId], references: [id])
+  salesQuote SalesQuote? @relation(fields: [salesQuoteId], references: [id])
+  items    CustomerPurchaseItem[]
+
+  @@index([customerId])
+  @@index([salesQuoteId])
+  @@index([purchaseDate])
+  @@index([paymentStatus])
+  @@index([deliveryStatus])
+  @@index([deletedAt])
+  @@map("customer_purchase_orders")
+}
+
+model CustomerPurchaseItem {
+  id                    BigInt           @id @default(autoincrement())
+  purchaseOrderId       BigInt           @map("purchase_order_id")
+  salesProductId        BigInt?          @map("sales_product_id")
+  productNameSnapshot   String           @map("product_name_snapshot") @db.VarChar(160)
+  brandSnapshot         String?          @map("brand_snapshot") @db.VarChar(120)
+  modelSnapshot         String?          @map("model_snapshot") @db.VarChar(120)
+  specificationSnapshot String?          @map("specification_snapshot") @db.VarChar(255)
+  unitSnapshot          String?          @map("unit_snapshot") @db.VarChar(30)
+  quantity              Decimal          @default(1.00) @db.Decimal(12, 2)
+  unitPrice             Decimal          @default(0.00) @map("unit_price") @db.Decimal(12, 2)
+  subtotal              Decimal          @default(0.00) @db.Decimal(12, 2)
+  expectedCycleDays     Int?             @map("expected_cycle_days")
+  repeatReminderEnabled Boolean          @default(false) @map("repeat_reminder_enabled")
+  actualCycleDays       Int?             @map("actual_cycle_days")
+  reminderDaysBefore    Int?             @map("reminder_days_before")
+  nextRepurchaseDate    DateTime?        @map("next_repurchase_date")
+  repurchaseStatus      RepurchaseStatus @default(PENDING) @map("repurchase_status")
+  remark                String?          @db.Text
+  createdAt             DateTime         @default(now()) @map("created_at")
+  updatedAt             DateTime         @updatedAt @map("updated_at")
+
+  purchaseOrder CustomerPurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+  salesProduct  SalesProduct?         @relation(fields: [salesProductId], references: [id])
+
+  @@index([purchaseOrderId])
+  @@index([salesProductId])
+  @@index([nextRepurchaseDate])
+  @@index([repurchaseStatus])
+  @@map("customer_purchase_items")
+}
+
+model Company {
+  id                     BigInt          @id @default(autoincrement())
+  name                   String          @db.VarChar(120)
+  contactName            String          @map("contact_name") @db.VarChar(60)
+  phone                  String          @db.VarChar(30)
+  address                String?         @db.VarChar(255)
+  originAddress          String?         @map("origin_address") @db.VarChar(255)
+  customerType           String?         @map("customer_type") @db.VarChar(80)
+  serviceNote            String?         @map("service_note") @db.Text
+  followUpNote           String?         @map("follow_up_note") @db.VarChar(500)
+  status                 CompanyStatus   @default(normal)
+  serviceStartAt         DateTime?       @map("service_start_at")
+  serviceExpireAt        DateTime        @map("service_expire_at")
+  defaultCertificateType CertificateType @default(enterprise_quick_test_label) @map("default_certificate_type")
+  createdAt              DateTime        @default(now()) @map("created_at")
+  updatedAt              DateTime        @updatedAt @map("updated_at")
+
+  users            CompanyUser[]
+  devices          Device[]
+  detectionRecords DetectionRecord[]
+  certificates     Certificate[]
+  products         Product[]
+  profile          CompanyProfile?
+  fileAssets       FileAsset[]
+  printers         Printer[]
+  aiInterpretations AiInterpretationJob[]
+
+  @@index([status])
+  @@index([serviceExpireAt])
+  @@map("companies")
+}
+
+model CompanyUser {
+  id           BigInt        @id @default(autoincrement())
+  companyId    BigInt        @map("company_id")
+  username     String        @unique @db.VarChar(60)
+  passwordHash String        @map("password_hash") @db.VarChar(255)
+  realName     String?       @map("real_name") @db.VarChar(60)
+  status       AccountStatus @default(normal)
+  lastLoginAt  DateTime?     @map("last_login_at")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  company      Company       @relation(fields: [companyId], references: [id])
+  certificates Certificate[]
+  aiInterpretations AiInterpretationJob[]
+
+  @@index([companyId])
+  @@index([status])
+  @@map("company_users")
+}
+
+model ManufacturerInterface {
+  id               BigInt                      @id @default(autoincrement())
+  manufacturerName String                      @map("manufacturer_name") @db.VarChar(120)
+  manufacturerCode String                      @unique @map("manufacturer_code") @db.VarChar(60)
+  accessSecret     String                      @map("access_secret") @db.VarChar(255)
+  integrationType  ManufacturerIntegrationType @default(http_api) @map("integration_type")
+  status           ManufacturerInterfaceStatus @default(normal)
+  signRule         String?                     @map("sign_rule") @db.VarChar(255)
+  allowedIps       String?                     @map("allowed_ips") @db.VarChar(500)
+  lastSyncAt       DateTime?                   @map("last_sync_at")
+  createdAt        DateTime                    @default(now()) @map("created_at")
+  updatedAt        DateTime                    @updatedAt @map("updated_at")
+
+  devices Device[]
+
+  @@index([status])
+  @@map("manufacturer_interfaces")
+}
+
+model Device {
+  id               BigInt       @id @default(autoincrement())
+  manufacturerCode String       @map("manufacturer_code") @db.VarChar(60)
+  deviceSn         String       @map("device_sn") @db.VarChar(120)
+  deviceName       String?      @map("device_name") @db.VarChar(120)
+  model            String?      @db.VarChar(120)
+  companyId        BigInt?      @map("company_id")
+  status           DeviceStatus @default(normal)
+  lastUploadAt     DateTime?    @map("last_upload_at")
+  remark           String?      @db.VarChar(500)
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+
+  manufacturer     ManufacturerInterface @relation(fields: [manufacturerCode], references: [manufacturerCode])
+  company          Company?              @relation(fields: [companyId], references: [id])
+  detectionRecords DetectionRecord[]
+
+  @@unique([manufacturerCode, deviceSn])
+  @@index([companyId])
+  @@index([status])
+  @@map("devices")
+}
+
+model DetectionRecord {
+  id                   BigInt                @id @default(autoincrement())
+  recordNo             String                @unique @map("record_no") @db.VarChar(60)
+  companyId            BigInt                @map("company_id")
+  deviceId             BigInt                @map("device_id")
+  manufacturerCode     String                @map("manufacturer_code") @db.VarChar(60)
+  deviceSn             String                @map("device_sn") @db.VarChar(120)
+  manufacturerRecordId String                @map("manufacturer_record_id") @db.VarChar(120)
+  sampleName           String?               @map("sample_name") @db.VarChar(120)
+  productName          String                @map("product_name") @db.VarChar(120)
+  overallResult        DetectionResult       @map("overall_result")
+  testTime             DateTime              @map("test_time")
+  uploadTime           DateTime              @map("upload_time")
+  status               DetectionRecordStatus @default(normal)
+  rawPayloadJson       Json?                 @map("raw_payload_json")
+  createdAt            DateTime              @default(now()) @map("created_at")
+  updatedAt            DateTime              @updatedAt @map("updated_at")
+
+  company      Company               @relation(fields: [companyId], references: [id])
+  device       Device                @relation(fields: [deviceId], references: [id])
+  items        DetectionRecordItem[]
+  certificates Certificate[]
+  aiInterpretation AiInterpretationJob?
+
+  @@unique([manufacturerCode, deviceSn, manufacturerRecordId])
+  @@index([companyId])
+  @@index([deviceId])
+  @@index([overallResult])
+  @@index([status])
+  @@index([testTime])
+  @@map("detection_records")
+}
+
+model DetectionRecordItem {
+  id                BigInt          @id @default(autoincrement())
+  detectionRecordId BigInt          @map("detection_record_id")
+  testItem          String          @map("test_item") @db.VarChar(120)
+  testMethod        String?         @map("test_method") @db.VarChar(120)
+  testValue         String          @map("test_value") @db.VarChar(120)
+  unit              String?         @db.VarChar(40)
+  standardLimit     String?         @map("standard_limit") @db.VarChar(255)
+  result            DetectionResult
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+
+  detectionRecord DetectionRecord @relation(fields: [detectionRecordId], references: [id])
+
+  @@index([detectionRecordId])
+  @@index([result])
+  @@map("detection_record_items")
+}
+
+model AiInterpretationJob {
+  id                BigInt                  @id @default(autoincrement())
+  companyId         BigInt                  @map("company_id")
+  companyUserId     BigInt                  @map("company_user_id")
+  detectionRecordId BigInt?                 @unique @map("detection_record_id")
+  imagePath         String                  @map("image_path") @db.VarChar(500)
+  testItem          String                  @map("test_item") @db.VarChar(120)
+  productName       String                  @map("product_name") @db.VarChar(120)
+  sampleName        String?                 @map("sample_name") @db.VarChar(120)
+  aiResult          AiInterpretationResult? @map("ai_result")
+  confidence        Decimal?                @db.Decimal(5, 4)
+  reason            String?                 @db.VarChar(1000)
+  status            AiInterpretationStatus  @default(CREATED)
+  errorReason       String?                 @map("error_reason") @db.VarChar(1000)
+  errorMessage      String?                 @map("error_message") @db.VarChar(1000)
+  lastError         String?                 @map("last_error") @db.VarChar(1000)
+  retryCount        Int                     @default(0) @map("retry_count")
+  providerName      String?                 @map("provider_name") @db.VarChar(60)
+  modelName         String?                 @map("model_name") @db.VarChar(120)
+  promptVersion     String?                 @map("prompt_version") @db.VarChar(120)
+  standardResultJson Json?                  @map("standard_result_json")
+  rawResponseJson   Json?                   @map("raw_response_json")
+  imageQuality      String?                 @map("image_quality") @db.VarChar(40)
+  imageQualityMessage String?               @map("image_quality_message") @db.VarChar(500)
+  imageWidth        Int?                    @map("image_width")
+  imageHeight       Int?                    @map("image_height")
+  requestTime       DateTime?               @map("request_time")
+  responseTime      DateTime?               @map("response_time")
+  processingAt      DateTime?               @map("processing_at")
+  successAt         DateTime?               @map("success_at")
+  failedAt          DateTime?               @map("failed_at")
+  confirmingAt      DateTime?               @map("confirming_at")
+  cancelledAt       DateTime?               @map("cancelled_at")
+  confirmedResult   AiInterpretationResult? @map("confirmed_result")
+  confirmedAt       DateTime?               @map("confirmed_at")
+  createdAt         DateTime                @default(now()) @map("created_at")
+  updatedAt         DateTime                @updatedAt @map("updated_at")
+
+  company         Company          @relation(fields: [companyId], references: [id])
+  companyUser     CompanyUser      @relation(fields: [companyUserId], references: [id])
+  detectionRecord DetectionRecord? @relation(fields: [detectionRecordId], references: [id])
+
+  @@index([companyId])
+  @@index([companyUserId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("ai_interpretation_jobs")
+}
+
+model Certificate {
+  id                BigInt            @id @default(autoincrement())
+  companyId         BigInt            @map("company_id")
+  detectionRecordId BigInt?           @map("detection_record_id")
+  issuedByUserId    BigInt?           @map("issued_by_user_id")
+  certificateNo     String            @unique @map("certificate_no") @db.VarChar(40)
+  publicToken       String            @unique @map("public_token") @db.VarChar(64)
+  certificateType   CertificateType   @map("certificate_type")
+  productName       String            @map("product_name") @db.VarChar(120)
+  quantity          Decimal           @default(1.00) @db.Decimal(12, 2)
+  unit              String            @default("批") @db.VarChar(20)
+  origin            String?           @db.VarChar(255)
+  issuerName        String            @map("issuer_name") @db.VarChar(120)
+  contactPhone      String            @map("contact_phone") @db.VarChar(30)
+  commitmentBasis   String            @map("commitment_basis") @db.VarChar(255)
+  commitmentBasisType String           @default("self_test_qualified") @map("commitment_basis_type") @db.VarChar(60)
+  commitmentStatement String?          @map("commitment_statement") @db.Text
+  issueDate         DateTime?         @map("issue_date")
+  printCopies       Int               @default(1) @map("print_copies")
+  evidenceVisibility String           @default("private") @map("evidence_visibility") @db.VarChar(30)
+  remark            String?           @db.VarChar(500)
+  status            CertificateStatus @default(normal)
+  issueTime         DateTime          @map("issue_time")
+  voidTime          DateTime?         @map("void_time")
+  qrUrl             String?           @map("qr_url") @db.VarChar(500)
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+
+  company         Company               @relation(fields: [companyId], references: [id])
+  detectionRecord DetectionRecord?      @relation(fields: [detectionRecordId], references: [id])
+  issuedByUser    CompanyUser?          @relation(fields: [issuedByUserId], references: [id])
+  printLogs       CertificatePrintLog[]
+  evidenceAssets  FileAsset[]
+
+  @@index([companyId])
+  @@index([detectionRecordId])
+  @@index([certificateType])
+  @@index([status])
+  @@index([issueTime])
+  @@map("certificates")
+}
+
+model Product {
+  id              BigInt        @id @default(autoincrement())
+  companyId       BigInt        @map("company_id")
+  productName     String        @map("product_name") @db.VarChar(120)
+  productCategory String?       @map("product_category") @db.VarChar(80)
+  specModel       String?       @map("spec_model") @db.VarChar(120)
+  defaultOrigin   String?       @map("default_origin") @db.VarChar(255)
+  defaultUnit     String        @default("kg") @map("default_unit") @db.VarChar(20)
+  remark          String?       @db.VarChar(500)
+  status          ProductStatus @default(normal)
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@unique([companyId, productName])
+  @@index([status])
+  @@map("products")
+}
+
+model CompanyProfile {
+  id                       BigInt   @id @default(autoincrement())
+  companyId                BigInt   @unique @map("company_id")
+  intro                    String?  @db.Text
+  mainProducts             String?  @map("main_products") @db.VarChar(500)
+  displayAddress           String?  @map("display_address") @db.VarChar(255)
+  displayPhone             String?  @map("display_phone") @db.VarChar(30)
+  qualificationDescription String?  @map("qualification_description") @db.VarChar(500)
+  isPublicEnabled          Boolean  @default(false) @map("is_public_enabled")
+  createdAt                DateTime @default(now()) @map("created_at")
+  updatedAt                DateTime @updatedAt @map("updated_at")
+
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@map("company_profiles")
+}
+
+model FileAsset {
+  id         BigInt   @id @default(autoincrement())
+  companyId  BigInt?  @map("company_id")
+  certificateId BigInt? @map("certificate_id")
+  bizType    String   @map("biz_type") @db.VarChar(60)
+  fileType   String   @map("file_type") @db.VarChar(60)
+  fileName   String   @map("file_name") @db.VarChar(255)
+  title      String?  @db.VarChar(255)
+  category   String?  @db.VarChar(80)
+  description String? @db.VarChar(500)
+  isRecommended Boolean @default(false) @map("is_recommended")
+  ossKey     String   @map("oss_key") @db.VarChar(500)
+  fileUrl    String   @map("file_url") @db.VarChar(1000)
+  mimeType   String?  @map("mime_type") @db.VarChar(120)
+  fileSize   BigInt?  @map("file_size")
+  storageDriver String @default("url") @map("storage_driver") @db.VarChar(30)
+  isPublic   Boolean  @default(true) @map("is_public")
+  sortOrder  Int      @default(0) @map("sort_order")
+  uploadedBy String?  @map("uploaded_by") @db.VarChar(120)
+  uploadedAt DateTime @default(now()) @map("uploaded_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+
+  company Company? @relation(fields: [companyId], references: [id])
+  certificate Certificate? @relation(fields: [certificateId], references: [id])
+
+  @@index([companyId])
+  @@index([certificateId])
+  @@index([bizType])
+  @@index([fileType])
+  @@map("file_assets")
+}
+
+model ManufacturerUploadLog {
+  id                   BigInt          @id @default(autoincrement())
+  manufacturerCode     String          @map("manufacturer_code") @db.VarChar(60)
+  deviceSn             String?         @map("device_sn") @db.VarChar(120)
+  manufacturerRecordId String?         @map("manufacturer_record_id") @db.VarChar(120)
+  requestPayload       Json?           @map("request_payload")
+  result               UploadLogResult
+  errorReason          String?         @map("error_reason") @db.VarChar(500)
+  createdAt            DateTime        @default(now()) @map("created_at")
+  updatedAt            DateTime        @updatedAt @map("updated_at")
+
+  @@index([manufacturerCode])
+  @@index([deviceSn])
+  @@index([manufacturerRecordId])
+  @@index([result])
+  @@map("manufacturer_upload_logs")
+}
+
+model CertificatePrintLog {
+  id            BigInt      @id @default(autoincrement())
+  certificateId BigInt      @map("certificate_id")
+  printerId     BigInt?     @map("printer_id")
+  printClient   PrintClient @map("print_client")
+  adapterType   String?     @map("adapter_type") @db.VarChar(60)
+  printerName   String?     @map("printer_name") @db.VarChar(120)
+  printerModel  String?     @map("printer_model") @db.VarChar(80)
+  connectionType String?    @map("connection_type") @db.VarChar(30)
+  printStatus   PrintStatus @map("print_status")
+  copies        Int         @default(1)
+  operatorName  String?     @map("operator_name") @db.VarChar(80)
+  errorMessage  String?     @map("error_message") @db.VarChar(500)
+  printedAt     DateTime    @default(now()) @map("printed_at")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+
+  certificate Certificate @relation(fields: [certificateId], references: [id])
+  printer     Printer?    @relation(fields: [printerId], references: [id])
+
+  @@index([certificateId])
+  @@index([printerId])
+  @@index([printStatus])
+  @@map("certificate_print_logs")
+}
+
+model Printer {
+  id              BigInt                @id @default(autoincrement())
+  companyId       BigInt?               @map("company_id")
+  printerName     String                @map("printer_name") @db.VarChar(120)
+  printerModel    String                @map("printer_model") @db.VarChar(80)
+  manufacturer    String?               @db.VarChar(80)
+  connectionType  PrinterConnectionType @default(bluetooth) @map("connection_type")
+  serialNo        String?               @map("serial_no") @db.VarChar(120)
+  macAddress      String?               @map("mac_address") @db.VarChar(120)
+  status          PrinterRuntimeStatus  @default(inactive)
+  lastConnectedAt DateTime?             @map("last_connected_at")
+  remark          String?               @db.VarChar(500)
+  createdAt       DateTime              @default(now()) @map("created_at")
+  updatedAt       DateTime              @updatedAt @map("updated_at")
+
+  company   Company?              @relation(fields: [companyId], references: [id])
+  printLogs CertificatePrintLog[]
+
+  @@index([companyId])
+  @@index([printerModel])
+  @@index([connectionType])
+  @@index([status])
+  @@map("printers")
+}
+
+model OperationLog {
+  id           BigInt       @id @default(autoincrement())
+  operatorType OperatorType @map("operator_type")
+  operatorId   BigInt?      @map("operator_id")
+  targetType   String       @map("target_type") @db.VarChar(80)
+  targetId     BigInt?      @map("target_id")
+  action       String       @db.VarChar(80)
+  content      String?      @db.VarChar(1000)
+  ip           String?      @db.VarChar(60)
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  @@index([operatorType])
+  @@index([operatorId])
+  @@index([targetType, targetId])
+  @@index([action])
+  @@map("operation_logs")
+}
+
+model SystemSetting {
+  id           BigInt   @id @default(autoincrement())
+  settingKey   String   @unique @map("setting_key") @db.VarChar(120)
+  settingValue String   @map("setting_value") @db.Text
+  remark       String?  @db.VarChar(500)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("system_settings")
+}

@@ -1,0 +1,18 @@
+{
+  "name": "\u8c37\u82af\u5feb\u68c0\u4e91",
+  "appid": "__UNI__GUXIN",
+  "description": "\u98df\u54c1\u5b89\u5168\u5feb\u68c0\u4e0e\u5408\u683c\u8bc1\u7ba1\u7406\u5ba2\u6237\u5c0f\u7a0b\u5e8f",
+  "versionName": "0.1.0",
+  "versionCode": "100",
+  "mp-weixin": {
+    "appid": "wx396e186d8eab8382",
+    "setting": {
+      "urlCheck": false,
+      "es6": true,
+      "postcss": true,
+      "minified": true,
+      "bigPackageSizeSupport": true
+    },
+    "usingComponents": true
+  }
+}

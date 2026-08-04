@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>打印机管理｜谷芯快检云</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <main class="app-shell" data-od-id="app-shell">
+    
+<section class="page" data-od-id="printers-page">
+
+<header class="topbar" data-od-id="topbar">
+  <a class="back btn" href="profile.html" data-od-id="back-button">‹</a>
+  <strong>打印机管理</strong>
+  <button class="btn btn-ghost" data-action="toast" data-message="已刷新当前页面" data-od-id="refresh-button">刷新</button>
+</header>
+  <section data-od-id="printers-section-1" class="card section stack"><div class="row"><strong>当前打印机</strong><span class="badge warn">未连接</span></div><p class="subtitle">支持标签打印机连接、测试打印和异常状态提示。</p></section>
+  <div class="field section"><input placeholder="搜索附近设备"></div>
+  <section data-od-id="printers-section-2" class="section stack">
+    <div class="list-card"><div class="row"><div><strong>K329 标签打印机</strong><p class="subtitle">信号良好 · 电量 82%</p></div><button class="btn btn-primary" data-action="loading" data-loading="连接中">连接</button></div></div>
+    <div class="list-card"><div class="row"><div><strong>GPrinter-680</strong><p class="subtitle">缺纸 · 需要检查耗材</p></div><span class="badge warn">缺纸</span></div></div>
+  </section>
+  <div class="fixed-action"><button class="btn btn-secondary" data-action="toast" data-message="测试打印已发送">测试打印</button><button class="btn btn-danger" data-action="toast" data-message="已断开当前设备">断开</button></div>
+</section>
+  </main>
+  <script src="../app.js"></script>
+</body>
+</html>

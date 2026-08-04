@@ -1,0 +1,23 @@
+{
+  "name": "guxin-quick-test-cloud",
+  "private": true,
+  "version": "0.1.0",
+  "description": "谷芯快检云第一版 MVP 项目骨架",
+  "packageManager": "pnpm@11.7.0",
+  "scripts": {
+    "dev:backend": "pnpm --filter @guxin/backend start:dev",
+    "dev:admin": "pnpm --filter @guxin/admin-web dev",
+    "dev:public": "pnpm --filter @guxin/public-h5 dev",
+    "dev:website": "pnpm --filter @guxin/website dev",
+    "dev:miniapp": "pnpm --filter @guxin/miniapp dev:mp-weixin",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "smoke:temp": "node scripts/smoke-test-temp-env.mjs",
+    "smoke:https": "node scripts/smoke-test-https-env.mjs",
+    "cert:check": "node scripts/check-cert-expiry.mjs",
+    "demo:prepare": "node scripts/prepare-demo-data-temp-env.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

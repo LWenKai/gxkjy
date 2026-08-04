@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>开具合格证｜谷芯快检云</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <main class="app-shell" data-od-id="app-shell">
+    
+<section class="page" data-od-id="certificate-create-page">
+
+<header class="topbar" data-od-id="topbar">
+  <a class="back btn" href="home.html" data-od-id="back-button">‹</a>
+  <strong>开具合格证</strong>
+  <button class="btn btn-ghost" data-action="toast" data-message="已刷新当前页面" data-od-id="refresh-button">刷新</button>
+</header>
+  <section class="card section stack" data-od-id="basis-selector">
+    <h1 class="title">承诺依据</h1>
+    <label class="row-start"><input type="radio" name="basis" value="自行检测合格" checked> 自行检测合格</label><label class="row-start"><input type="radio" name="basis" value="质量安全控制符合要求" > 质量安全控制符合要求</label><label class="row-start"><input type="radio" name="basis" value="委托检测合格" > 委托检测合格</label>
+  </section>
+  <section class="card section stack" id="record-select" data-od-id="selected-record">
+    <div class="row"><div><strong>已选择检测记录</strong><p class="subtitle">西红柿 · 今天 09:42 · 检测合格</p></div><a class="btn btn-secondary" href="select-detection.html">更换</a></div>
+  </section>
+  <section class="card section stack hidden" id="upload-evidence" data-od-id="upload-evidence"><strong>依据资料</strong><p class="subtitle">请上传图片或 PDF 作为开证依据</p><button class="btn btn-secondary" data-action="toast" data-message="文件上传失败，请检查格式和大小">上传资料</button></section>
+  <section class="card section stack" data-od-id="product-form">
+    <h2 class="title">产品信息</h2>
+    <div class="grid-2"><div class="field"><label>产品名称</label><input value="西红柿"></div><div class="field"><label>产品数量</label><input value="25"></div></div>
+    <div class="grid-2"><div class="field"><label>单位</label><input value="kg"></div><div class="field"><label>产地</label><input value="山西太原"></div></div>
+  </section>
+  <section class="card section stack" data-od-id="promise-form">
+    <h2 class="title">承诺信息</h2>
+    <div class="field"><label>承诺主体</label><input value="山西谷芯示范食品有限公司"></div>
+    <div class="field"><label>联系电话</label><input value="13363412262"></div>
+    <div class="field"><label>承诺事项</label><textarea>本批次产品经检测或依据资料确认，符合质量安全相关要求。</textarea></div>
+    <div class="field"><label>打印份数</label><input type="number" value="2" min="1" max="99"></div>
+  </section>
+  <div class="fixed-action"><a class="btn btn-primary" href="certificate-success.html" data-od-id="generate-certificate">生成合格证</a><button class="btn btn-secondary" data-action="toast" data-message="打印份数请输入 1-99">校验提示</button></div>
+</section>
+<nav class="bottom-nav" data-od-id="bottom-nav">
+  <a href="home.html" class="" data-od-id="nav-home">首页</a>
+  <a href="detections.html" class="" data-od-id="nav-detections">检测</a>
+  <a href="certificate-create.html" class="active" data-od-id="nav-create">开证</a>
+  <a href="profile.html" class="" data-od-id="nav-profile">我的</a>
+</nav>
+  </main>
+  <script src="../app.js"></script>
+</body>
+</html>

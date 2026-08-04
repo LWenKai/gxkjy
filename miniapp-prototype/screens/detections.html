@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>检测记录｜谷芯快检云</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <main class="app-shell" data-od-id="app-shell">
+    
+<section class="page" data-od-id="detections-page">
+
+<header class="topbar" data-od-id="topbar">
+  <a class="back btn" href="home.html" data-od-id="back-button">‹</a>
+  <strong>检测记录</strong>
+  <button class="btn btn-ghost" data-action="toast" data-message="已刷新当前页面" data-od-id="refresh-button">刷新</button>
+</header>
+  <div class="field section"><input data-search=".detection-item" placeholder="搜索样品名称" data-od-id="detection-search"></div>
+  <div class="tabs section" data-od-id="detection-filter"><button class="tab active" data-filter="全部" data-target=".detection-item">全部</button><button class="tab" data-filter="合格" data-target=".detection-item">合格</button><button class="tab" data-filter="不合格" data-target=".detection-item">不合格</button></div>
+  <section data-od-id="detections-section-1" class="section stack">
+    <a class="list-card detection-item" data-status="合格" href="detection-detail.html"><div class="row"><strong>西红柿</strong><span class="badge success">合格 · 可开证</span></div><p class="subtitle">今天 09:42 · 检测 4 项</p><span class="btn btn-secondary">开具合格证</span></a>
+    <a class="list-card detection-item" data-status="合格" href="detection-detail.html"><div class="row"><strong>黄瓜</strong><span class="badge success">合格 · 可开证</span></div><p class="subtitle">今天 08:50 · 检测 4 项</p></a>
+    <a class="list-card detection-item" data-status="不合格" href="detection-detail.html"><div class="row"><strong>韭菜</strong><span class="badge danger">不合格</span></div><p class="subtitle">昨天 16:12 · 不可开证：检测结论不合格</p></a>
+  </section>
+  <div class="empty hidden" id="empty-state">暂无检测记录</div>
+</section>
+<nav class="bottom-nav" data-od-id="bottom-nav">
+  <a href="home.html" class="" data-od-id="nav-home">首页</a>
+  <a href="detections.html" class="active" data-od-id="nav-detections">检测</a>
+  <a href="certificate-create.html" class="" data-od-id="nav-create">开证</a>
+  <a href="profile.html" class="" data-od-id="nav-profile">我的</a>
+</nav>
+  </main>
+  <script src="../app.js"></script>
+</body>
+</html>
