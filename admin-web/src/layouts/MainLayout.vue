@@ -12,6 +12,7 @@
       <el-menu class="admin-menu" :default-active="activePath" router>
         <el-menu-item-group v-for="group in menuGroups" :key="group.title" :title="group.title">
           <el-menu-item v-for="item in group.items" :key="item.path" :index="item.path">
+            <Icon :name="item.icon" :size="18" />
             <span>{{ item.label }}</span>
           </el-menu-item>
         </el-menu-item-group>
@@ -49,44 +50,44 @@ const authStore = useAuthStore();
 const menuGroups = [
   {
     title: '\u603b\u89c8',
-    items: [{ path: '/dashboard', label: '\u7ecf\u8425\u6570\u636e\u770b\u677f' }],
+    items: [{ path: '/dashboard', label: '\u7ecf\u8425\u6570\u636e\u770b\u677f', icon: 'layout-dashboard' }],
   },
   {
     title: '\u9500\u552e\u7ecf\u8425',
     items: [
-      { path: '/customers', label: '\u5ba2\u6237\u7ba1\u7406' },
-      { path: '/sales-products', label: '\u9500\u552e\u4ea7\u54c1\u5e93' },
+      { path: '/customers', label: '\u5ba2\u6237\u7ba1\u7406', icon: 'users' },
+      { path: '/sales-products', label: '\u9500\u552e\u4ea7\u54c1\u5e93', icon: 'package' },
     ],
   },
   {
     title: '\u5ba2\u6237\u4ea4\u4ed8',
     items: [
-      { path: '/companies', label: '\u4f01\u4e1a\u7aef\u7ba1\u7406' },
-      { path: '/products', label: '\u5f00\u8bc1\u4ea7\u54c1\u5e93' },
-      { path: '/devices', label: '\u68c0\u6d4b\u8bbe\u5907' },
-      { path: '/printers', label: '\u6253\u5370\u8bbe\u5907' },
+      { path: '/companies', label: '\u4f01\u4e1a\u7aef\u7ba1\u7406', icon: 'building-2' },
+      { path: '/products', label: '\u5f00\u8bc1\u4ea7\u54c1\u5e93', icon: 'box' },
+      { path: '/devices', label: '\u68c0\u6d4b\u8bbe\u5907', icon: 'cpu' },
+      { path: '/printers', label: '\u6253\u5370\u8bbe\u5907', icon: 'printer' },
     ],
   },
   {
     title: '\u68c0\u6d4b\u4e0e\u5408\u683c\u8bc1',
     items: [
-      { path: '/detection-records', label: '\u68c0\u6d4b\u8bb0\u5f55' },
-      { path: '/certificates', label: '\u5408\u683c\u8bc1\u7ba1\u7406' },
+      { path: '/detection-records', label: '\u68c0\u6d4b\u8bb0\u5f55', icon: 'clipboard-list' },
+      { path: '/certificates', label: '\u5408\u683c\u8bc1\u7ba1\u7406', icon: 'badge-check' },
     ],
   },
   {
     title: '\u5382\u5bb6\u5bf9\u63a5',
     items: [
-      { path: '/manufacturer-interfaces', label: '\u5382\u5bb6\u63a5\u53e3' },
-      { path: '/manufacturer-upload-logs', label: '\u4e0a\u4f20\u65e5\u5fd7' },
+      { path: '/manufacturer-interfaces', label: '\u5382\u5bb6\u63a5\u53e3', icon: 'plug' },
+      { path: '/manufacturer-upload-logs', label: '\u4e0a\u4f20\u65e5\u5fd7', icon: 'upload' },
     ],
   },
   {
     title: '\u7cfb\u7edf\u652f\u6301',
     items: [
-      { path: '/operation-logs', label: '\u64cd\u4f5c\u65e5\u5fd7' },
-      { path: '/help', label: '\u5e2e\u52a9\u4e0e\u8bf4\u660e' },
-      { path: '/settings', label: '\u7cfb\u7edf\u8bbe\u7f6e' },
+      { path: '/operation-logs', label: '\u64cd\u4f5c\u65e5\u5fd7', icon: 'scroll-text' },
+      { path: '/help', label: '\u5e2e\u52a9\u4e0e\u8bf4\u660e', icon: 'help-circle' },
+      { path: '/settings', label: '\u7cfb\u7edf\u8bbe\u7f6e', icon: 'settings' },
     ],
   },
 ];

@@ -5,6 +5,7 @@ import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 import App from './App.vue';
 import { router } from './router';
+import Icon from './components/Icon.vue';
 import './styles/main.css';
 
-createApp(App).use(createPinia()).use(router).use(ElementPlus, { locale: zhCn }).mount('#app');
+createApp(App).use(createPinia()).use(router).use(ElementPlus, { locale: zhCn }).component('Icon', Icon).mount('#app');

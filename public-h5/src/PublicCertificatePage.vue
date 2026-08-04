@@ -72,14 +72,6 @@ function formatQueryTime(value: Date) {
   return value.toLocaleString('zh-CN', { hour12: false });
 }
 
-function resultText(result?: PublicResult) {
-  return result === 'qualified' ? '合格' : '不合格';
-}
-
-function resultClass(result?: PublicResult) {
-  return result === 'qualified' ? 'success' : 'danger';
-}
-
 function commitmentBasisText(type?: string, fallback?: string) {
   const map: Record<string, string> = {
     quality_control: '质量安全控制符合要求',
@@ -167,12 +159,16 @@ onMounted(async () => {
     <section class="hero" :class="{ voided: isVoided, invalid: isInvalid || loadError }">
       <span class="hero-glow" aria-hidden="true"></span>
       <div class="brand-line">
-        <span class="brand-badge">谷</span>
+        <span class="brand-badge">
+          <Icon name="shield-check" :size="20" />
+        </span>
         <span class="brand-name">谷芯快检云</span>
         <span class="brand-tag">官方验证</span>
       </div>
-      <h1>食品安全追溯查询</h1>
-      <p>{{ settings.certificate_public_notice }}</p>
+      <div class="hero-title">
+        <h1>承诺达标合格证</h1>
+        <p>农产品质量安全</p>
+      </div>
     </section>
 
     <section v-if="loading" class="card center-card">
@@ -181,74 +177,66 @@ onMounted(async () => {
     </section>
 
     <section v-else-if="loadError" class="card invalid-card">
-      <div class="status-icon invalid">!</div>
+      <div class="status-icon invalid">
+        <Icon name="alert-triangle" :size="34" />
+      </div>
       <h2>查询暂时不可用</h2>
       <p>{{ loadError }}</p>
       <small>查询时间：{{ formatQueryTime(queryTime) }}</small>
     </section>
 
     <section v-else-if="isInvalid" class="card invalid-card">
-      <div class="status-icon invalid">?</div>
+      <div class="status-icon invalid">
+        <Icon name="file-question" :size="34" />
+      </div>
       <h2>未查询到有效合格证</h2>
       <p>{{ data?.message || '请核对二维码来源，或联系开具主体确认。' }}</p>
       <small>查询时间：{{ formatQueryTime(queryTime) }}</small>
     </section>
 
     <template v-else-if="certificate && company">
-      <section class="status-card" :class="{ voided: isVoided }">
-        <div class="status-icon">{{ isVoided ? '!' : '✓' }}</div>
-        <div>
-          <p class="status-kicker">查询状态</p>
-          <h2>{{ isVoided ? '该合格证已作废' : '查询有效' }}</h2>
+      <section class="cert-no-banner" :class="{ voided: isVoided }">
+        <div class="cert-no-label">合格证编号</div>
+        <div class="cert-no-value">{{ certificate.certificate_no }}</div>
+      </section>
+
+      <section class="status-banner" :class="isVoided ? 'voided' : 'valid'">
+        <Icon :name="isVoided ? 'x-octagon' : 'badge-check'" :size="40" />
+        <div class="status-text">
+          <strong>{{ isVoided ? '该合格证已作废' : '检验合格' }}</strong>
+          <span>{{ isVoided ? '不得作为有效流通凭证' : '本产品经检测符合要求' }}</span>
         </div>
       </section>
 
-      <section class="card cert-card">
-        <div class="card-head">
-          <div>
-            <span class="section-label">合格证信息</span>
-            <h2>{{ certificate.certificate_title }}</h2>
+      <section class="card">
+        <div class="kv">
+          <div class="kv-row">
+            <span class="kv-key">产品名称</span>
+            <span class="kv-val">{{ certificate.product_name }}</span>
           </div>
-          <span class="pill" :class="isNormal ? 'success' : 'danger'">
-            {{ isNormal ? '有效' : '已作废' }}
-          </span>
-        </div>
-        <div class="cert-no">
-          <span>合格证编号</span>
-          <strong>{{ certificate.certificate_no }}</strong>
-        </div>
-        <div class="info-grid">
-          <div>
-            <span>产品名称</span>
-            <strong>{{ certificate.product_name }}</strong>
+          <div class="kv-row">
+            <span class="kv-key">产品数量</span>
+            <span class="kv-val">{{ certificate.quantity }} {{ certificate.unit }}</span>
           </div>
-          <div>
-            <span>产品数量</span>
-            <strong>{{ certificate.quantity }} {{ certificate.unit }}</strong>
+          <div class="kv-row">
+            <span class="kv-key">产地</span>
+            <span class="kv-val">{{ certificate.origin || '-' }}</span>
           </div>
-          <div>
-            <span>产地</span>
-            <strong>{{ certificate.origin || '-' }}</strong>
+          <div class="kv-row">
+            <span class="kv-key">承诺主体</span>
+            <span class="kv-val">{{ certificate.issuer_name }}</span>
           </div>
-          <div>
-            <span>承诺主体</span>
-            <strong>{{ certificate.issuer_name }}</strong>
+          <div class="kv-row">
+            <span class="kv-key">联系方式</span>
+            <span class="kv-val">{{ certificate.contact_phone }}</span>
           </div>
-          <div>
-            <span>联系方式</span>
-            <strong>{{ certificate.contact_phone }}</strong>
+          <div class="kv-row">
+            <span class="kv-key">开具时间</span>
+            <span class="kv-val">{{ formatDateTime(certificate.issue_time) }}</span>
           </div>
-          <div>
-            <span>开具时间</span>
-            <strong>{{ formatDateTime(certificate.issue_time) }}</strong>
-          </div>
-          <div>
-            <span>承诺依据</span>
-            <strong>{{ commitmentBasisText(certificate.commitment_basis_type, certificate.commitment_basis) }}</strong>
-          </div>
-          <div>
-            <span>查询时间</span>
-            <strong>{{ formatQueryTime(queryTime) }}</strong>
+          <div class="kv-row">
+            <span class="kv-key">承诺依据</span>
+            <span class="kv-val">{{ commitmentBasisText(certificate.commitment_basis_type, certificate.commitment_basis) }}</span>
           </div>
         </div>
       </section>
@@ -260,58 +248,30 @@ onMounted(async () => {
         </p>
       </section>
 
-      <section class="card">
-        <div class="section-label">承诺事项</div>
-        <p class="statement">
-          {{
-            certificate.commitment_statement ||
-            '本主体承诺对合格证内容真实性负责，如对结果有疑问，请联系开具主体。'
-          }}
-        </p>
-      </section>
-
       <section v-if="detection" class="card">
-        <div class="card-head compact">
-          <div>
-            <span class="section-label">检测结果</span>
-            <h2>{{ detection.sample_name || detection.product_name }}</h2>
-          </div>
-          <span class="pill" :class="resultClass(detection.overall_result)">
-            {{ resultText(detection.overall_result) }}
-          </span>
+        <div class="section-label"><Icon name="flask-conical" :size="15" /> 检测结果</div>
+        <div class="detection-summary">
+          <span class="detection-name">{{ detection.sample_name || detection.product_name }}</span>
+          <span class="pill success">合格</span>
         </div>
-        <div class="mini-summary">
-          <span>检测时间：{{ formatDateTime(detection.test_time) }}</span>
-          <span>项目数量：{{ detection.items.length }} 项</span>
-        </div>
+        <p class="detection-time">检测时间：{{ formatDateTime(detection.test_time) }} · 共 {{ detection.items.length }} 项，均合格</p>
         <div class="result-list">
           <div
             v-for="item in detection.items"
             :key="item.test_item"
-            class="result-item"
-            :class="resultClass(item.result)"
+            class="result-item success"
           >
-            <div class="result-title">
-              <strong>{{ item.test_item }}</strong>
-              <span :class="resultClass(item.result)">{{ resultText(item.result) }}</span>
-            </div>
-            <p>{{ item.test_method || '检测方法未填写' }}</p>
-            <div class="metric-grid">
-              <div>
-                <span>检测值</span>
-                <strong>{{ item.test_value }}{{ item.unit || '' }}</strong>
-              </div>
-              <div>
-                <span>限量值</span>
-                <strong>{{ item.standard_limit || '-' }}</strong>
-              </div>
+            <Icon name="check-circle" :size="18" />
+            <div class="result-item-body">
+              <strong class="result-name">{{ item.test_item }}</strong>
+              <p v-if="item.test_value">{{ item.test_value }}{{ item.unit || '' }} / 限 {{ item.standard_limit || '-' }}</p>
             </div>
           </div>
         </div>
       </section>
 
       <section v-else-if="evidenceAssets.length" class="card">
-        <div class="section-label">公开依据资料</div>
+        <div class="section-label"><Icon name="folder-open" :size="15" /> 公开依据资料</div>
         <div class="document-list">
           <template v-for="asset in evidenceAssets" :key="asset.file_url">
             <button
@@ -333,7 +293,9 @@ onMounted(async () => {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <div class="doc-icon">PDF</div>
+              <div class="doc-icon">
+                <Icon name="file-text" :size="26" />
+              </div>
               <div>
                 <strong>{{ asset.file_name }}</strong>
                 <span>{{ formatFileSize(asset.file_size) || '点击查看' }}</span>
@@ -344,25 +306,25 @@ onMounted(async () => {
       </section>
 
       <section v-if="showCompanyProfile" class="card">
-        <div class="section-label">企业公开资料</div>
+        <div class="section-label"><Icon name="building-2" :size="15" /> 企业公开资料</div>
         <h2>{{ company.name }}</h2>
         <p v-if="company.intro" class="profile-text">{{ company.intro }}</p>
-        <div class="info-grid small">
-          <div v-if="company.main_products">
-            <span>主营产品</span>
-            <strong>{{ company.main_products }}</strong>
+        <div class="company-kv">
+          <div v-if="company.main_products" class="kv-row">
+            <span class="kv-key">主营产品</span>
+            <span class="kv-val">{{ company.main_products }}</span>
           </div>
-          <div v-if="company.display_address">
-            <span>展示地址</span>
-            <strong>{{ company.display_address }}</strong>
+          <div v-if="company.display_address" class="kv-row">
+            <span class="kv-key">展示地址</span>
+            <span class="kv-val">{{ company.display_address }}</span>
           </div>
-          <div v-if="company.display_phone">
-            <span>联系电话</span>
-            <strong>{{ company.display_phone }}</strong>
+          <div v-if="company.display_phone" class="kv-row">
+            <span class="kv-key">联系电话</span>
+            <span class="kv-val">{{ company.display_phone }}</span>
           </div>
-          <div v-if="company.qualification_description">
-            <span>资质说明</span>
-            <strong>{{ company.qualification_description }}</strong>
+          <div v-if="company.qualification_description" class="kv-row">
+            <span class="kv-key">资质说明</span>
+            <span class="kv-val">{{ company.qualification_description }}</span>
           </div>
         </div>
         <div v-if="company.images?.length || company.qualification_images?.length" class="image-grid">
@@ -401,7 +363,9 @@ onMounted(async () => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <div class="doc-icon">资料</div>
+            <div class="doc-icon">
+              <Icon name="folder-open" :size="26" />
+            </div>
             <div>
               <strong>{{ asset.file_name }}</strong>
               <span>点击查看</span>
@@ -411,11 +375,22 @@ onMounted(async () => {
       </section>
 
       <section class="card trust-card">
-        <div class="section-label">可信查询说明</div>
-        <p>
-          本查询结果由谷芯快检云实时生成，当前状态以本页面显示为准。如对检测结果或承诺内容有疑问，请联系开具主体确认。
+        <div class="trust-head">
+          <div class="section-label"><Icon name="shield-check" :size="15" /> 主体承诺</div>
+          <span class="seal" aria-hidden="true">
+            <Icon name="badge-check" :size="16" />
+            已承诺
+          </span>
+        </div>
+        <p class="statement">
+          {{
+            certificate.commitment_statement ||
+            '本主体承诺对合格证内容真实性负责，如对结果有疑问，请联系开具主体。'
+          }}
         </p>
-        <p>可截图保存或转发给采购方查看。</p>
+        <div class="trust-sign">
+          <span>承诺主体：{{ certificate.issuer_name }}</span>
+        </div>
       </section>
     </template>
 
@@ -428,12 +403,6 @@ onMounted(async () => {
         <img :src="previewImage.url" :alt="previewImage.name" />
       </div>
     </div>
-
-    <footer v-if="false" class="footer">
-      <strong>山西谷芯科技有限公司</strong>
-      <span v-if="settings.show_support_info">{{ settings.support_text }}</span>
-      <span>{{ settings.public_footer_notice }}</span>
-    </footer>
   </main>
 </template>
 
@@ -460,14 +429,14 @@ a {
 
 .hero {
   position: relative;
-  margin: 0 -16px 18px;
-  padding: 32px 20px 56px;
+  margin: 0 -16px 16px;
+  padding: 26px 20px 30px;
   color: #fff;
   background:
     radial-gradient(circle at 88% 12%, rgba(255, 255, 255, 0.18), transparent 38%),
     linear-gradient(135deg, #0f8f58 0%, #13a86a 46%, #0ea5a6 100%);
-  border-bottom-left-radius: 28px;
-  border-bottom-right-radius: 28px;
+  border-bottom-left-radius: 24px;
+  border-bottom-right-radius: 24px;
   overflow: hidden;
 }
 
@@ -508,8 +477,6 @@ a {
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.92);
   color: #0f8f58;
-  font-size: 19px;
-  font-weight: 900;
   box-shadow: 0 6px 16px rgba(8, 60, 38, 0.28);
 }
 
@@ -528,52 +495,36 @@ a {
   line-height: 1.4;
 }
 
+.hero-title {
+  position: relative;
+  z-index: 1;
+  margin: 16px 0 0;
+}
+
 .hero h1 {
-  position: relative;
-  z-index: 1;
-  margin: 18px 0 10px;
-  font-size: 29px;
-  line-height: 1.15;
-  letter-spacing: 0;
-}
-
-.hero p {
-  position: relative;
-  z-index: 1;
   margin: 0;
-  max-width: 620px;
-  color: rgba(255, 255, 255, 0.86);
-  line-height: 1.65;
+  font-size: 27px;
+  line-height: 1.25;
+  letter-spacing: 0.5px;
+  font-weight: 900;
 }
 
-.card,
-.status-card {
+.hero-title p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0.88;
+  letter-spacing: 1px;
+}
+
+.card {
   max-width: 760px;
   margin: 0 auto 14px;
   border: 1px solid #e0ece6;
   border-radius: 18px;
   background: #ffffff;
   box-shadow: 0 12px 30px rgba(20, 70, 50, 0.07);
-  transition:
-    box-shadow 0.25s ease,
-    transform 0.25s ease;
-}
-
-.card {
   padding: 20px;
-}
-
-.status-card {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  padding: 18px 20px;
-  margin-top: -42px;
-}
-
-.status-card.voided {
-  border-color: #f0d0ca;
-  background: #fff8f7;
 }
 
 .status-icon {
@@ -585,13 +536,7 @@ a {
   place-items: center;
   color: #fff;
   background: linear-gradient(135deg, #0f8f58, #13b77c);
-  font-size: 40px;
-  font-weight: 900;
   box-shadow: 0 10px 24px rgba(15, 143, 88, 0.28);
-}
-
-.status-card > div:last-child {
-  min-width: 0;
 }
 
 .voided .status-icon,
@@ -601,20 +546,24 @@ a {
 
 .status-kicker,
 .section-label {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   margin: 0 0 6px;
   color: #0f8f58;
   font-size: 13px;
   font-weight: 800;
 }
 
-.status-card h2,
+.section-label :deep(.gx-icon) {
+  flex: 0 0 auto;
+}
+
 .card h2 {
   margin: 0 0 8px;
   font-size: 21px;
 }
 
-.status-card p,
 .statement,
 .trust-card p,
 .profile-text {
@@ -623,16 +572,38 @@ a {
   line-height: 1.7;
 }
 
-.card-head {
+.trust-head {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: 12px;
 }
 
-.card-head.compact {
+.trust-head .section-label {
+  margin-bottom: 0;
+}
+
+.seal {
+  display: inline-flex;
   align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1.5px solid #0f8f58;
+  border-radius: 999px;
+  color: #0f8f58;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  background: #f3faf6;
+  white-space: nowrap;
+}
+
+.trust-sign {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed #dceee6;
+  color: #708076;
+  font-size: 13px;
 }
 
 .pill {
@@ -649,13 +620,6 @@ a {
   line-height: 1;
   white-space: nowrap;
   word-break: keep-all;
-  writing-mode: horizontal-tb;
-}
-
-.pill,
-.result-title span {
-  white-space: nowrap;
-  word-break: keep-all;
 }
 
 .success {
@@ -668,60 +632,114 @@ a {
   background: #fff0ee;
 }
 
-.cert-no {
-  padding: 14px 16px;
+.cert-no-banner {
+  max-width: 760px;
+  margin: -34px auto 14px;
+  position: relative;
+  z-index: 2;
+  padding: 14px 20px;
   border-radius: 16px;
-  border: 1px solid #dceee6;
-  background: linear-gradient(180deg, #f7fcfa, #eef8f3);
-  margin-bottom: 14px;
+  background: #ffffff;
+  border: 1px solid #e0ece6;
+  box-shadow: 0 12px 30px rgba(20, 70, 50, 0.1);
+  text-align: center;
 }
 
-.cert-no span,
-.info-grid span,
-.mini-summary,
-.metric-grid span,
-.document-item span {
+.cert-no-banner.voided {
+  border-color: #f0d0ca;
+}
+
+.cert-no-label {
+  color: #708076;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.cert-no-value {
+  color: #14382c;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  word-break: break-all;
+}
+
+.status-banner {
+  max-width: 760px;
+  margin: 0 auto 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  border-radius: 18px;
+  color: #fff;
+}
+
+.status-banner.valid {
+  background: linear-gradient(135deg, #0f8f58, #13b77c);
+  box-shadow: 0 12px 28px rgba(15, 143, 88, 0.28);
+}
+
+.status-banner.voided {
+  background: linear-gradient(135deg, #c05a4b, #d47862);
+  box-shadow: 0 12px 28px rgba(192, 90, 75, 0.24);
+}
+
+.status-banner :deep(.gx-icon) {
+  flex: 0 0 auto;
+}
+
+.status-text {
+  min-width: 0;
+}
+
+.status-text strong {
+  display: block;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.status-text span {
+  display: block;
+  margin-top: 3px;
+  font-size: 13px;
+  opacity: 0.92;
+}
+
+.kv {
+  display: flex;
+  flex-direction: column;
+}
+
+.kv-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid #eef4f0;
+}
+
+.kv-row:last-child {
+  border-bottom: 0;
+}
+
+.kv-key {
+  flex: 0 0 76px;
   color: #708076;
   font-size: 13px;
 }
 
-.cert-no strong {
-  display: block;
-  margin-top: 4px;
-  font-size: 18px;
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.info-grid div {
+.kv-val {
+  flex: 1;
   min-width: 0;
-  padding: 12px;
-  border-radius: 14px;
-  background: #ffffff;
-  border: 1px solid #edf4f0;
-  border-left: 3px solid #cdeadd;
-  transition:
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
-}
-
-.info-grid div:hover {
-  box-shadow: 0 6px 18px rgba(15, 143, 88, 0.1);
-  transform: translateY(-1px);
-}
-
-.info-grid strong {
-  display: block;
-  margin-top: 5px;
+  color: #14382c;
+  font-size: 15px;
+  font-weight: 700;
   word-break: break-word;
   line-height: 1.45;
 }
 
-.info-grid.small {
+.company-kv {
   margin-top: 14px;
 }
 
@@ -730,60 +748,79 @@ a {
   background: #fff8f7;
 }
 
-.mini-summary {
+.detection-summary {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px 14px;
-  margin-bottom: 14px;
-}
-
-.result-list {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.result-item {
-  padding: 16px;
-  border: 1px solid #dceee6;
-  border-radius: 18px;
-  background: #ffffff;
-}
-
-.result-item.success {
-  border-color: #bce8d0;
-  border-left: 3px solid #0f8f58;
-}
-
-.result-item.danger {
-  border-color: #f2c7c0;
-  border-left: 3px solid #c9352a;
-}
-
-.result-title {
   align-items: center;
-  display: flex;
   justify-content: space-between;
   gap: 12px;
+  margin: 10px 0 6px;
 }
 
-.result-title p,
-.result-item p {
-  margin: 6px 0 12px;
+.detection-name {
+  font-size: 17px;
+  font-weight: 800;
+  color: #14382c;
+}
+
+.detection-time {
+  margin: 0 0 14px;
   color: #708076;
   font-size: 13px;
 }
 
-.metric-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.result-list {
+  display: flex;
+  flex-direction: column;
   gap: 10px;
 }
 
-.metric-grid div {
-  padding: 10px;
-  border-radius: 12px;
-  background: #f3faf6;
+.result-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid #dceee6;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.result-item.success {
+  border-left: 3px solid #0f8f58;
+}
+
+.result-item.danger {
+  border-left: 3px solid #c9352a;
+}
+
+.result-item :deep(.gx-icon) {
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.result-item.success :deep(.gx-icon) {
+  color: #0f8f58;
+}
+
+.result-item.danger :deep(.gx-icon) {
+  color: #c9352a;
+}
+
+.result-item-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.result-name {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  color: #14382c;
+}
+
+.result-item p {
+  margin: 4px 0 0;
+  color: #708076;
+  font-size: 13px;
 }
 
 .document-list {
@@ -826,8 +863,6 @@ a {
   display: grid;
   place-items: center;
   color: #0f8f58;
-  font-size: 12px;
-  font-weight: 900;
 }
 
 .document-item strong,
@@ -1041,8 +1076,11 @@ a {
     line-height: 1.22;
   }
 
+  .hero-title p {
+    font-size: 13px;
+  }
+
   .hero p,
-  .status-card p,
   .statement,
   .trust-card p,
   .profile-text {
@@ -1053,17 +1091,6 @@ a {
   .card {
     padding: 15px;
     border-radius: 16px;
-  }
-
-  .card,
-  .status-card {
-    margin-bottom: 12px;
-  }
-
-  .status-card {
-    align-items: flex-start;
-    gap: 12px;
-    padding: 16px;
   }
 
   .status-icon {
@@ -1077,35 +1104,6 @@ a {
   .card h2 {
     font-size: 19px;
     line-height: 1.35;
-  }
-
-  .card-head {
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .card-head > div {
-    min-width: 0;
-  }
-
-  .cert-no strong,
-  .info-grid strong {
-    font-size: 17px;
-    line-height: 1.45;
-  }
-
-  .info-grid div {
-    padding: 11px;
-  }
-
-  .metric-grid,
-  .result-list {
-    grid-template-columns: 1fr;
-  }
-
-  .info-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
   }
 
   .image-grid {

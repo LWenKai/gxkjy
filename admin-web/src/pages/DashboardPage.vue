@@ -15,6 +15,7 @@
         type="button"
         @click="router.push(item.to)"
       >
+        <Icon :name="item.icon" :size="22" class="stat-card-icon" />
         <span>{{ item.label }}</span>
         <strong>{{ item.value }}</strong>
         <small>{{ item.note }}</small>
@@ -111,14 +112,14 @@ function moneyText(value?: string | number) {
 const dashboardCards = computed(() => {
   const stats = summary.value?.stats;
   return [
-    { label: '今年成交金额', value: moneyText(stats?.sales_amount_this_year), note: '成交订单汇总', to: { path: '/customers' } },
-    { label: '预计毛利', value: moneyText(stats?.sales_profit_estimate_this_year), note: '按产品成本估算', to: { path: '/sales-products' } },
-    { label: '待复购', value: stats?.repurchase_due_soon ?? 0, note: '需要跟进客户', to: { path: '/customers' } },
-    { label: '销售客户', value: stats?.customer_total ?? 0, note: '内部客户库', to: { path: '/customers' } },
-    { label: '企业账号', value: stats?.company_total ?? 0, note: '已开通企业', to: { path: '/companies' } },
-    { label: '30天内到期', value: stats?.company_expiring_soon ?? 0, note: '续费跟进', to: { path: '/companies', query: { expire: 'soon' } } },
-    { label: '今日检测', value: stats?.detection_record_today ?? 0, note: '检测记录', to: { path: '/detection-records', query: { date: 'today' } } },
-    { label: '今日开证', value: stats?.certificate_today ?? 0, note: '合格证', to: { path: '/certificates', query: { date: 'today' } } },
+    { label: '今年成交金额', value: moneyText(stats?.sales_amount_this_year), note: '成交订单汇总', icon: 'trending-up', to: { path: '/customers' } },
+    { label: '预计毛利', value: moneyText(stats?.sales_profit_estimate_this_year), note: '按产品成本估算', icon: 'pie-chart', to: { path: '/sales-products' } },
+    { label: '待复购', value: stats?.repurchase_due_soon ?? 0, note: '需要跟进客户', icon: 'refresh-cw', to: { path: '/customers' } },
+    { label: '销售客户', value: stats?.customer_total ?? 0, note: '内部客户库', icon: 'users', to: { path: '/customers' } },
+    { label: '企业账号', value: stats?.company_total ?? 0, note: '已开通企业', icon: 'building-2', to: { path: '/companies' } },
+    { label: '30天内到期', value: stats?.company_expiring_soon ?? 0, note: '续费跟进', icon: 'calendar-clock', to: { path: '/companies', query: { expire: 'soon' } } },
+    { label: '今日检测', value: stats?.detection_record_today ?? 0, note: '检测记录', icon: 'clipboard-list', to: { path: '/detection-records', query: { date: 'today' } } },
+    { label: '今日开证', value: stats?.certificate_today ?? 0, note: '合格证', icon: 'badge-check', to: { path: '/certificates', query: { date: 'today' } } },
   ];
 });
 
@@ -157,6 +158,11 @@ function openCertificate(row: Certificate) {
 
 .dashboard-key-grid .stat-card {
   min-height: 118px;
+}
+
+.stat-card-icon {
+  color: var(--el-color-primary, #409eff);
+  margin-bottom: 6px;
 }
 
 .dashboard-key-grid .stat-card strong {
