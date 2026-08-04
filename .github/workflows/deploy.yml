@@ -16,28 +16,24 @@ jobs:
       - name: Install sshpass
         run: sudo apt-get update && sudo apt-get install -y sshpass
 
-      # 注意：部署用密码方式登录服务器（SSH_PRIVATE_KEY 未使用）。
-      # 若服务器禁用密码登录，请改用 SSH 私钥（见下方注释）。
-      - name: Sync code to server via rsync
+      - name: Sync code to server via rsync (password auth)
         env:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
           SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
         run: |
-          # 安装 rsync（ubuntu-latest 自带，保险起见）
-          which rsync || sudo apt-get install -y rsync
-
-          # 准备 SSH 指纹信任（避免 known_hosts 交互）
           mkdir -p ~/.ssh
           ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts
 
-          rsync -az --delete \
+          export SSHPASS="$SERVER_PASSWORD"
+          sshpass -e rsync -az --delete \
             --exclude='.env' \
             --exclude='.env.example' \
             --exclude='uploads/' \
             --exclude='backups/' \
             --exclude='.runtime/' \
             --exclude='.git/' \
+            -e "ssh -o StrictHostKeyChecking=no" \
             ./ "$SERVER_USER@$SERVER_HOST:/opt/gxkjy/"
 
       - name: Rebuild & restart via SSH
