@@ -2,6 +2,7 @@ FROM node:22-alpine AS deps
 WORKDIR /app
 COPY package.json pnpm-workspace.yaml ./
 COPY backend/package.json backend/package.json
+ENV NODE_OPTIONS=--dns-result-order=ipv4first
 RUN corepack enable && pnpm install --filter @guxin/backend --frozen-lockfile=false
 
 FROM deps AS build

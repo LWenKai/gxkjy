@@ -6,6 +6,7 @@ ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ENV VITE_CERT_PUBLIC_BASE_URL=$VITE_CERT_PUBLIC_BASE_URL
 COPY package.json pnpm-workspace.yaml ./
 COPY public-h5/package.json public-h5/package.json
+ENV NODE_OPTIONS=--dns-result-order=ipv4first
 RUN corepack enable && pnpm install --filter @guxin/public-h5 --frozen-lockfile=false
 COPY public-h5 public-h5
 COPY deploy/nginx/static-spa.conf /tmp/static-spa.conf

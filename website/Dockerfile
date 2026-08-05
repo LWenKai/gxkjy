@@ -4,6 +4,7 @@ WORKDIR /app
 
 COPY package.json pnpm-workspace.yaml ./
 COPY website/package.json website/package.json
+ENV NODE_OPTIONS=--dns-result-order=ipv4first
 RUN corepack enable && pnpm install --filter @guxin/website --frozen-lockfile=false
 
 COPY website website

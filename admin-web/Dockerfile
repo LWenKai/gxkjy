@@ -6,6 +6,7 @@ ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ENV VITE_APP_BASE_PATH=$VITE_APP_BASE_PATH
 COPY package.json pnpm-workspace.yaml ./
 COPY admin-web/package.json admin-web/package.json
+ENV NODE_OPTIONS=--dns-result-order=ipv4first
 RUN corepack enable && pnpm install --filter @guxin/admin-web --frozen-lockfile=false
 COPY admin-web admin-web
 COPY deploy/nginx/static-spa.conf /tmp/static-spa.conf
