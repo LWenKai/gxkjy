@@ -224,8 +224,8 @@ onMounted(() => {
   padding: 26px 30px;
   border-radius: 18px;
   background:
-    linear-gradient(135deg, rgba(15, 143, 88, 0.95), rgba(20, 105, 122, 0.88)),
-    radial-gradient(circle at top right, rgba(255, 255, 255, 0.26), transparent 34%);
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.26), transparent 34%),
+    var(--guxin-green);
   color: #fff;
 }
 

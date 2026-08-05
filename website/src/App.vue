@@ -147,7 +147,7 @@ onMounted(async () => {
   <div class="site-shell">
     <header class="site-header">
       <a class="brand" href="#top" aria-label="谷芯科技首页">
-        <span class="brand-mark">GX</span>
+        <img class="brand-logo" src="./assets/logo-icon.png" alt="谷芯科技" />
         <span>
           <strong>谷芯科技</strong>
           <small>食品安全快检配套服务</small>
@@ -256,7 +256,7 @@ onMounted(async () => {
 
       <section v-if="settings.show_cloud_module" id="cloud" class="section cloud-section">
         <div class="cloud-copy">
-          <span class="eyebrow">Guxin Quick Test Cloud</span>
+          <span class="eyebrow">谷芯快检云</span>
           <h2>谷芯快检云：把检测记录、开证、打印和扫码查询串起来</h2>
           <p>
             谷芯快检云面向食品安全快检场景，提供检测记录管理、合格证开具、公开扫码查询和模拟打印记录能力。

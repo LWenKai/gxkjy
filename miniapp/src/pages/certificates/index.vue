@@ -179,7 +179,7 @@ onPullDownRefresh(() => {
 }
 
 .cert-card::before {
-  background: linear-gradient(180deg, #0f8f58, #13a6b3);
+  background: #0f8f58;
   border-radius: 999rpx;
   content: "";
   height: 72rpx;

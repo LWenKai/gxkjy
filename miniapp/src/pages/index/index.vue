@@ -285,7 +285,7 @@ onShow(() => {
 
 .company-card {
   align-items: center;
-  background: linear-gradient(135deg, #0b7a4b 0%, #0f8f58 52%, #13a6b3 100%);
+  background: #0b7a4b;
   border-radius: 32rpx;
   box-shadow: 0 16rpx 38rpx rgba(12, 65, 43, 0.2);
   display: flex;

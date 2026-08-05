@@ -414,7 +414,7 @@ onPullDownRefresh(() => {
 }
 
 .save-button {
-  background: linear-gradient(135deg, #0f8f58, #16a7a1);
+  background: #0f8f58;
   border-radius: 999rpx;
   color: #fff;
   font-size: 30rpx;

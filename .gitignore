@@ -20,3 +20,13 @@ backups/
 
 # 小程序私有配置(含本地工具设置)
 project.private.config.json
+
+# 编译产物（Vite/Vue 中间文件，不应入库）
+*.map
+website/src/*.js
+website/src/components/*.js
+website/src/App.vue.js
+website/src/api.js
+
+# macOS
+.DS_Store

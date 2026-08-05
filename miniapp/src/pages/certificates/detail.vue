@@ -220,7 +220,7 @@ onShow(() => {
 
 .certificate-hero {
   align-items: flex-start;
-  background: linear-gradient(135deg, #073f33 0%, #0f8f58 58%, #13a6b3 100%);
+  background: #073f33;
   border-radius: 34rpx;
   box-shadow: 0 22rpx 50rpx rgba(12, 65, 43, 0.18);
   display: flex;

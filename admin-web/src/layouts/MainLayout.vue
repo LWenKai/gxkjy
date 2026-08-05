@@ -2,12 +2,10 @@
   <el-container class="admin-layout">
     <el-aside :width="collapsed ? '76px' : '232px'" class="admin-aside" :class="{ collapsed }">
       <div class="brand">
-        <span class="brand-logo">
-          <Icon name="shield-check" :size="22" />
-        </span>
+        <img class="brand-logo-img" src="/logo-icon.png" alt="谷芯科技" />
         <div class="brand-text" v-show="!collapsed">
-          <div class="brand-title">&#x8C37;&#x82AF;&#x5FEB;&#x68C0;&#x4E91;</div>
-          <div class="brand-subtitle">&#x7BA1;&#x7406;&#x540E;&#x53F0;</div>
+          <div class="brand-title">谷芯科技</div>
+          <div class="brand-subtitle">管理后台</div>
         </div>
       </div>
 

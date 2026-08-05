@@ -1,12 +1,12 @@
 <template>
   <section class="page-section dashboard-page">
-    <!-- 欢迎条 -->
-    <div class="welcome-bar">
-      <div>
+    <!-- 渐变 Hero 欢迎条 -->
+    <div class="dashboard-hero">
+      <div class="hero-main">
         <h1>{{ greeting }}，管理员</h1>
-        <p class="welcome-date">{{ todayText }}</p>
+        <p>{{ todayText }}</p>
       </div>
-      <div class="welcome-status">
+      <div class="hero-status">
         <span class="status-dot" :class="abnormalCount > 0 ? 'warn' : 'ok'"></span>
         {{ abnormalCount > 0 ? `有 ${abnormalCount} 条不合格记录待跟进` : '当前无异常检测记录' }}
       </div>
@@ -292,59 +292,62 @@ async function loadData() {
   gap: 16px;
 }
 
-/* 欢迎条 */
-.welcome-bar {
-  display: flex;
+/* 渐变 Hero 条 */
+.dashboard-hero {
   align-items: center;
+  background:
+    radial-gradient(circle at 88% 14%, rgba(255, 255, 255, 0.22), transparent 22%),
+    linear-gradient(120deg, #064032 0%, #0b7a4b 56%, #14a3a6 100%);
+  border: 0;
+  border-radius: 16px;
+  box-shadow: var(--guxin-shadow-strong);
+  color: #fff;
+  display: flex;
   justify-content: space-between;
-  flex-wrap: wrap;
   gap: 16px;
-  padding: 8px 4px 4px;
+  flex-wrap: wrap;
+  padding: 24px 28px;
 }
 
-.welcome-bar h1 {
+.hero-main h1 {
+  color: #fff;
   margin: 0;
   font-size: 26px;
   font-weight: 800;
   letter-spacing: 0.3px;
-  background: linear-gradient(120deg, var(--guxin-green-deep), var(--guxin-green));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
 }
 
-.welcome-date {
+.hero-main p {
+  color: rgba(255, 255, 255, 0.82);
   margin: 6px 0 0;
-  color: var(--guxin-muted);
   font-size: 14px;
 }
 
-.welcome-status {
+.hero-status {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 9px 16px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(15, 143, 88, 0.16);
-  box-shadow: 0 6px 18px rgba(15, 143, 88, 0.08);
-  backdrop-filter: blur(8px);
-  color: var(--guxin-green-deep);
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
   font-size: 13px;
   font-weight: 600;
+  backdrop-filter: blur(6px);
 }
 
 .status-dot {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: #25b376;
-  box-shadow: 0 0 0 4px rgba(37, 179, 118, 0.18);
+  background: #5ff0b0;
+  box-shadow: 0 0 0 4px rgba(95, 240, 176, 0.25);
 }
 
 .status-dot.warn {
-  background: #e0892a;
-  box-shadow: 0 0 0 4px rgba(224, 137, 42, 0.18);
+  background: #ffc06b;
+  box-shadow: 0 0 0 4px rgba(255, 192, 107, 0.25);
 }
 
 /* 核心 KPI */
@@ -404,7 +407,8 @@ async function loadData() {
   border-radius: 13px;
   color: var(--guxin-green);
   flex: 0 0 auto;
-  box-shadow: inset 0 0 0 1px rgba(15, 143, 88, 0.08);
+  background: linear-gradient(135deg, rgba(11, 122, 75, 0.12), rgba(20, 163, 166, 0.12));
+  box-shadow: inset 0 0 0 1px rgba(15, 143, 88, 0.1);
 }
 
 .kpi-body {

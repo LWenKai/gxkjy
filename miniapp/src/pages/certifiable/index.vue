@@ -688,7 +688,7 @@ onShow(() => {
 }
 
 .submit-button {
-  background: linear-gradient(135deg, #0d8b54 0%, #16b4a5 100%);
+  background: #0d8b54;
   border-radius: 999rpx;
   box-shadow: 0 12rpx 28rpx rgba(15, 143, 88, 0.22);
   color: #fff;

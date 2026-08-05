@@ -41,76 +41,142 @@ a {
   text-decoration: none;
 }
 
-.el-button--primary {
-  --el-button-bg-color: var(--guxin-green);
-  --el-button-border-color: var(--guxin-green);
-  --el-button-hover-bg-color: var(--guxin-green-dark);
-  --el-button-hover-border-color: var(--guxin-green-dark);
+/* 实心主按钮：纯色品牌绿（全局统一、不抢眼） */
+.el-button--primary:not(.is-text):not(.is-link):not(.is-plain) {
+  --el-button-bg-color: var(--guxin-green) !important;
+  --el-button-border-color: var(--guxin-green) !important;
+  --el-button-hover-bg-color: var(--guxin-green-dark) !important;
+  --el-button-hover-border-color: var(--guxin-green-dark) !important;
+  background: var(--guxin-green) !important;
+  border: 0 !important;
+  box-shadow: 0 4px 12px rgba(11, 122, 75, 0.14);
+  transition: background-color 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.el-button--primary:not(.is-text):not(.is-link):not(.is-plain):hover,
+.el-button--primary:not(.is-text):not(.is-link):not(.is-plain):focus,
+.el-button--primary:not(.is-text):not(.is-link):not(.is-plain):active {
+  background: var(--guxin-green-dark) !important;
+  border: 0 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(11, 122, 75, 0.2);
+}
+
+.el-button--primary.is-plain {
+  background: transparent !important;
+  color: var(--guxin-green-dark) !important;
+  border: 1px solid rgba(11, 122, 75, 0.35) !important;
+  box-shadow: none !important;
+}
+
+.el-button--primary.is-plain:hover,
+.el-button--primary.is-plain:focus {
+  background: rgba(11, 122, 75, 0.08) !important;
+  color: var(--guxin-green-dark) !important;
+  border-color: var(--guxin-green) !important;
+}
+
+/* 文字按钮（表格内 查看/编辑/停用 等）：纯文字色，严禁背景/渐变/阴影 */
+.el-button.is-text,
+.el-button.is-link {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  transition: background-color 0.16s ease, color 0.16s ease;
+}
+
+.el-button.is-text:hover,
+.el-button.is-link:hover {
+  background: rgba(11, 122, 75, 0.08) !important;
+  box-shadow: none !important;
+}
+
+.el-button.is-text.el-button--primary,
+.el-button.is-link.el-button--primary {
+  color: var(--guxin-green-dark) !important;
+}
+
+.el-button.is-text.el-button--danger,
+.el-button.is-link.el-button--danger {
+  color: var(--guxin-danger) !important;
+}
+
+.el-button.is-text.el-button--warning,
+.el-button.is-link.el-button--warning {
+  color: var(--guxin-warning) !important;
+}
+
+.el-button.is-text.el-button--success,
+.el-button.is-link.el-button--success {
+  color: var(--guxin-green) !important;
+}
+
+/* 实心危险/警告/成功按钮（如删除确认、停用）：轻量纯色，不渐变 */
+.el-button--danger:not(.is-text):not(.is-link) {
+  background: var(--guxin-danger);
+  border-color: var(--guxin-danger);
+  box-shadow: 0 4px 12px rgba(201, 63, 52, 0.18);
+}
+
+.el-button--warning:not(.is-text):not(.is-link) {
+  background: var(--guxin-warning);
+  border-color: var(--guxin-warning);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(217, 134, 0, 0.18);
+}
+
+.table-actions .el-button--warning {
+  --el-button-border-color: rgba(217, 134, 0, 0.35);
+  --el-button-text-color: var(--guxin-warning);
+  --el-button-hover-bg-color: rgba(217, 134, 0, 0.08);
+  --el-button-hover-border-color: var(--guxin-warning);
+  background: transparent !important;
+  border-color: rgba(217, 134, 0, 0.35) !important;
+  color: var(--guxin-warning) !important;
 }
 
 .login-page {
   display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: center;
   min-height: 100vh;
   background:
-    radial-gradient(circle at 12% 78%, rgba(19, 166, 179, 0.16), transparent 30%),
-    radial-gradient(circle at 82% 18%, rgba(50, 192, 123, 0.18), transparent 28%),
-    linear-gradient(135deg, #eaf7f1 0%, #f8fcfa 58%, #edf7f8 100%);
+    radial-gradient(circle at 0% 100%, rgba(19, 166, 179, 0.18), transparent 38%),
+    radial-gradient(circle at 100% 0%, rgba(11, 122, 75, 0.2), transparent 40%),
+    linear-gradient(135deg, #eaf7f1 0%, #f3fbf8 52%, #e8f6f7 100%);
   overflow: hidden;
   position: relative;
 }
 
-.login-page::before {
-  background: linear-gradient(135deg, rgba(15, 143, 88, 0.1), rgba(19, 166, 179, 0.08));
-  border: 1px solid rgba(15, 143, 88, 0.12);
-  border-radius: 80px;
-  content: "";
-  height: 340px;
-  left: 50%;
-  margin-left: -170px;
+.login-bg-deco {
   position: absolute;
-  top: -110px;
-  transform: rotate(14deg);
-  width: 340px;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
 }
 
-.login-brand-top {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  justify-content: center;
-  padding: 26px 24px 0;
-  width: 100%;
+.login-bg-deco--1 {
+  width: 420px;
+  height: 420px;
+  left: -120px;
+  bottom: -140px;
+  background: radial-gradient(circle, rgba(19, 166, 179, 0.55), transparent 70%);
 }
 
-.login-brand-top .brand-line {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
-
-.login-brand-top .brand-name {
-  color: var(--guxin-green-dark);
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-}
-
-.login-brand-top .brand-tag {
-  color: var(--guxin-green);
-  background: rgba(15, 143, 88, 0.1);
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
+.login-bg-deco--2 {
+  width: 380px;
+  height: 380px;
+  right: -120px;
+  top: -130px;
+  background: radial-gradient(circle, rgba(11, 122, 75, 0.5), transparent 70%);
 }
 
 .login-center {
   position: relative;
   z-index: 1;
   display: flex;
-  flex: 1;
   align-items: center;
   justify-content: center;
   width: 100%;
@@ -119,19 +185,62 @@ a {
 
 .login-card {
   width: 100%;
-  max-width: 400px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(249, 253, 251, 0.98));
+  max-width: 404px;
+  background: rgba(255, 255, 255, 0.82);
   border: 1px solid rgba(220, 233, 227, 0.9);
-  border-radius: 20px;
-  box-shadow: var(--guxin-shadow-strong);
-  padding: 34px 30px 26px;
-  backdrop-filter: blur(14px);
+  border-radius: 22px;
+  box-shadow: 0 24px 60px rgba(15, 74, 52, 0.16);
+  padding: 36px 32px 28px;
+  backdrop-filter: blur(18px);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--guxin-green), var(--guxin-cyan));
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.login-logo-img {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+  flex: 0 0 auto;
+  filter: drop-shadow(0 6px 12px rgba(11, 122, 75, 0.18));
+}
+
+.login-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.login-brand-text strong {
+  color: var(--guxin-green-deep);
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+}
+
+.login-brand-text span {
+  color: var(--guxin-muted);
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .login-card-head {
   margin-bottom: 22px;
-  text-align: center;
+  text-align: left;
 }
 
 .login-card h2 {
@@ -179,6 +288,23 @@ a {
   border-radius: 12px;
   font-weight: 800;
   width: 100%;
+  background: linear-gradient(135deg, var(--guxin-green), var(--guxin-cyan)) !important;
+  border: 0 !important;
+  box-shadow: 0 10px 24px rgba(11, 122, 75, 0.28);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.login-button:hover,
+.login-button:focus,
+.login-button:active {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px rgba(11, 122, 75, 0.34);
+  background: linear-gradient(135deg, var(--guxin-green), var(--guxin-cyan)) !important;
+  border: 0 !important;
+}
+
+.login-button:not(:hover) {
+  background: linear-gradient(135deg, var(--guxin-green), var(--guxin-cyan)) !important;
 }
 
 .login-demo {
@@ -211,12 +337,14 @@ a {
   cursor: pointer;
   transition:
     background 0.2s ease,
-    border-color 0.2s ease;
+    border-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .demo-button:hover {
-  background: #eef8f2;
-  border-color: #9fd8c1;
+  background: linear-gradient(135deg, #eef8f2, #e6f6f6);
+  border-color: var(--guxin-cyan);
+  color: var(--guxin-green-dark);
 }
 
 .login-safe-tip {
@@ -233,19 +361,19 @@ a {
 .admin-layout {
   min-height: 100vh;
   background:
-    radial-gradient(circle at 18% -12%, rgba(11, 122, 75, 0.08), transparent 25%),
-    radial-gradient(circle at 96% 0%, rgba(20, 163, 166, 0.07), transparent 26%),
-    linear-gradient(180deg, #f7fbf9 0%, #eef6f2 100%),
-    var(--guxin-bg);
+    radial-gradient(circle at 12% -8%, rgba(11, 122, 75, 0.05), transparent 22%),
+    radial-gradient(circle at 94% 4%, rgba(20, 163, 166, 0.05), transparent 24%),
+    #f5f9f7;
 }
 
 .admin-aside {
-  background: linear-gradient(180deg, #f1faf5 0%, #eef6f2 100%);
-  border-right: 1px solid rgba(221, 232, 226, 0.9);
+  background: rgba(255, 255, 255, 0.9);
+  border-right: 1px solid rgba(221, 232, 226, 0.7);
   padding: 20px 14px;
   display: flex;
   flex-direction: column;
-  box-shadow: 18px 0 46px rgba(29, 73, 52, 0.08);
+  box-shadow: 14px 0 40px rgba(29, 73, 52, 0.06);
+  backdrop-filter: blur(8px);
 }
 
 .brand {
@@ -255,16 +383,12 @@ a {
   padding: 4px 6px 22px;
 }
 
-.brand-logo {
-  display: grid;
-  place-items: center;
+.brand-logo-img {
   width: 40px;
   height: 40px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #0b7a4b, #14a3a6);
-  color: #fff;
-  box-shadow: 0 8px 18px rgba(11, 122, 75, 0.28);
+  object-fit: contain;
   flex: 0 0 auto;
+  filter: drop-shadow(0 4px 10px rgba(11, 122, 75, 0.16));
 }
 
 .brand-title {
@@ -331,7 +455,7 @@ a {
 }
 
 .admin-menu .el-menu-item.is-active {
-  background: rgba(255, 255, 255, 0.92);
+  background: linear-gradient(135deg, rgba(11, 122, 75, 0.1), rgba(20, 163, 166, 0.08));
   color: #0b7a4b;
   font-weight: 800;
   box-shadow: 0 6px 16px rgba(11, 122, 75, 0.1);
@@ -341,11 +465,11 @@ a {
   content: "";
   position: absolute;
   left: 0;
-  top: 10px;
-  bottom: 10px;
+  top: 8px;
+  bottom: 8px;
   width: 3px;
   border-radius: 0 3px 3px 0;
-  background: linear-gradient(180deg, #0b7a4b, #14a3a6);
+  background: var(--guxin-green);
 }
 
 .admin-menu .el-menu-item.is-active .gx-icon {
@@ -414,7 +538,7 @@ a {
 
 .user-avatar {
   align-items: center;
-  background: linear-gradient(135deg, #0b7a4b, #14a3a6);
+  background: var(--guxin-green);
   border-radius: 50%;
   color: #fff;
   display: inline-flex;
@@ -474,7 +598,7 @@ a {
 }
 
 .env-badge {
-  background: linear-gradient(135deg, #e7f7f2, #edf8fb);
+  background: #eef8f2;
   border: 1px solid #cfeee8;
   border-radius: 999px;
   color: var(--guxin-green-dark);

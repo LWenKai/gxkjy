@@ -1,18 +1,23 @@
 <template>
   <main class="login-page">
-    <header class="login-brand-top">
-      <div class="brand-line">
-        <span class="brand-name">谷芯快检云</span>
-        <span class="brand-tag">管理后台</span>
-      </div>
-    </header>
+    <div class="login-bg-deco login-bg-deco--1"></div>
+    <div class="login-bg-deco login-bg-deco--2"></div>
 
     <section class="login-center">
       <div class="login-card">
+        <div class="login-brand">
+          <img class="login-logo-img" src="/logo-icon.png" alt="谷芯科技" />
+          <div class="login-brand-text">
+            <strong>谷芯科技</strong>
+            <span>管理后台</span>
+          </div>
+        </div>
+
         <div class="login-card-head">
           <h2>欢迎回来</h2>
           <p>请输入管理员账号登录</p>
         </div>
+
         <el-form
           ref="formRef"
           :model="form"

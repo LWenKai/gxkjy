@@ -90,7 +90,7 @@ onLoad((query) => {
 <style scoped>
 .success-hero {
   align-items: center;
-  background: linear-gradient(135deg, #073f33, #0f8f58);
+  background: #073f33;
   border-radius: 34rpx;
   color: #fff;
   display: flex;

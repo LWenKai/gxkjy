@@ -202,7 +202,7 @@ onPullDownRefresh(() => {
 }
 
 .select-btn {
-  background: linear-gradient(135deg, #0f8f58, #13a6b3);
+  background: #0f8f58;
   border-radius: 999rpx;
   color: #fff;
   flex: 0 0 auto;

@@ -410,7 +410,7 @@ async function submit() {
 
 .option-check.checked,
 .protocol-check.checked {
-  background: linear-gradient(135deg, #0b7a4b, #14a3a6);
+  background: #0b7a4b;
   border-color: transparent;
 }
 
@@ -445,7 +445,7 @@ async function submit() {
 .login-button {
   width: 100%;
   height: 96rpx;
-  background: linear-gradient(135deg, #0b7a4b 0%, #14a3a6 100%);
+  background: #0b7a4b;
   border-radius: 20rpx;
   box-shadow: 0 16rpx 36rpx rgba(11, 122, 75, 0.26);
   color: #ffffff;
