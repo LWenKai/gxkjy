@@ -343,6 +343,46 @@ export class CertificatesService {
     return this.serializeClientCertificateDetail(updated);
   }
 
+  async voidAdmin(id: bigint, request: RequestWithAdmin, reason?: string) {
+    const certificate = await this.prisma.certificate.findFirst({
+      where: { id },
+      include: certificateDetailInclude,
+    });
+
+    if (!certificate) {
+      throw new NotFoundException({
+        message: '合格证不存在',
+        code: 'CERTIFICATE_NOT_FOUND',
+      });
+    }
+    if (certificate.status === CertificateStatus.voided) {
+      throw new BadRequestException({
+        message: '合格证已作废，不能重复作废',
+        code: 'CERTIFICATE_ALREADY_VOIDED',
+      });
+    }
+
+    const updated = await this.prisma.certificate.update({
+      where: { id },
+      data: {
+        status: CertificateStatus.voided,
+        voidTime: new Date(),
+      },
+      include: certificateDetailInclude,
+    });
+
+    await this.operationLogs.writeAdminLog({
+      adminId: request.adminUser!.id,
+      targetType: 'certificate',
+      targetId: id,
+      action: 'certificate.void',
+      ip: request.ip,
+      content: reason || undefined,
+    });
+
+    return serializeCertificateDetail(updated);
+  }
+
   async getPrintData(id: bigint, request: RequestWithClientUser) {
     const certificate = await this.prisma.certificate.findFirst({
       where: {

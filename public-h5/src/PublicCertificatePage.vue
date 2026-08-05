@@ -81,6 +81,14 @@ function commitmentBasisText(type?: string, fallback?: string) {
   return map[type || ''] || fallback || '自行检测合格';
 }
 
+function resultText(result?: string) {
+  return result === 'unqualified' ? '不合格' : '合格';
+}
+
+function resultClass(result?: string) {
+  return result === 'unqualified' ? 'danger' : 'success';
+}
+
 function formatFileSize(value?: string | null) {
   const size = Number(value || 0);
   if (!size) return '';
@@ -163,7 +171,6 @@ onMounted(async () => {
           <Icon name="shield-check" :size="20" />
         </span>
         <span class="brand-name">谷芯快检云</span>
-        <span class="brand-tag">官方验证</span>
       </div>
       <div class="hero-title">
         <h1>承诺达标合格证</h1>
@@ -203,8 +210,9 @@ onMounted(async () => {
       <section class="status-banner" :class="isVoided ? 'voided' : 'valid'">
         <Icon :name="isVoided ? 'x-octagon' : 'badge-check'" :size="40" />
         <div class="status-text">
-          <strong>{{ isVoided ? '该合格证已作废' : '检验合格' }}</strong>
+          <strong>{{ isVoided ? '该合格证已作废' : '查询有效' }}</strong>
           <span>{{ isVoided ? '不得作为有效流通凭证' : '本产品经检测符合要求' }}</span>
+          <span class="query-time">查询时间：{{ formatQueryTime(queryTime) }}</span>
         </div>
       </section>
 
@@ -252,16 +260,17 @@ onMounted(async () => {
         <div class="section-label"><Icon name="flask-conical" :size="15" /> 检测结果</div>
         <div class="detection-summary">
           <span class="detection-name">{{ detection.sample_name || detection.product_name }}</span>
-          <span class="pill success">合格</span>
+          <span class="pill" :class="resultClass(detection.overall_result)">{{ resultText(detection.overall_result) }}</span>
         </div>
-        <p class="detection-time">检测时间：{{ formatDateTime(detection.test_time) }} · 共 {{ detection.items.length }} 项，均合格</p>
+        <p class="detection-time">检测时间：{{ formatDateTime(detection.test_time) }} · 共 {{ detection.items.length }} 项</p>
         <div class="result-list">
           <div
             v-for="item in detection.items"
             :key="item.test_item"
-            class="result-item success"
+            class="result-item"
+            :class="resultClass(item.result)"
           >
-            <Icon name="check-circle" :size="18" />
+            <Icon :name="item.result === 'unqualified' ? 'alert-triangle' : 'check-circle'" :size="18" />
             <div class="result-item-body">
               <strong class="result-name">{{ item.test_item }}</strong>
               <p v-if="item.test_value">{{ item.test_value }}{{ item.unit || '' }} / 限 {{ item.standard_limit || '-' }}</p>
@@ -270,20 +279,39 @@ onMounted(async () => {
         </div>
       </section>
 
-      <section v-else-if="evidenceAssets.length" class="card">
+      <section v-if="evidenceAssets.length" class="card">
         <div class="section-label"><Icon name="folder-open" :size="15" /> 公开依据资料</div>
         <div class="document-list">
           <template v-for="asset in evidenceAssets" :key="asset.file_url">
             <button
-              v-if="isImage(asset)"
+              v-if="isImage(asset) && !isImageUnavailable(asset)"
               type="button"
               class="document-item image-document-button"
               @click="openAsset(asset.file_url, asset.file_name)"
             >
-              <img :src="assetUrl(asset.file_url)" :alt="asset.file_name" />
+              <img
+                :src="assetUrl(asset.file_url)"
+                :alt="asset.file_name"
+                loading="lazy"
+                @error="onImageLoadError(assetUrl(asset.file_url))"
+              />
               <div>
                 <strong>{{ asset.file_name }}</strong>
                 <span>{{ formatFileSize(asset.file_size) || '点击预览' }}</span>
+              </div>
+            </button>
+            <button
+              v-else-if="isImage(asset) && isImageUnavailable(asset)"
+              type="button"
+              class="document-item image-document-button"
+              disabled
+            >
+              <div class="doc-icon">
+                <Icon name="image-off" :size="26" />
+              </div>
+              <div>
+                <strong>{{ asset.file_name }}</strong>
+                <span>图片暂不可预览</span>
               </div>
             </button>
             <a
@@ -392,6 +420,20 @@ onMounted(async () => {
           <span>承诺主体：{{ certificate.issuer_name }}</span>
         </div>
       </section>
+
+      <section class="card notice-card">
+        <div class="section-label"><Icon name="info" :size="15" /> 查询说明</div>
+        <p class="notice-text">
+          本查询结果由谷芯快检云实时生成，当前状态以本页面显示为准。如显示查询有效，表示该合格证当前未作废，可用于查看产品承诺信息及相关检测、依据资料。
+        </p>
+      </section>
+
+      <section class="card share-card">
+        <div class="section-label"><Icon name="share-2" :size="15" /> 分享与保存</div>
+        <p class="notice-text">
+          您可截图保存本页面，或将其转发给采购方查看。合格证状态以扫码页面实时查询结果为准。
+        </p>
+      </section>
     </template>
 
     <div v-if="previewImage" class="image-preview-mask" @click="closePreview">
@@ -482,17 +524,6 @@ a {
 
 .brand-name {
   letter-spacing: 0.5px;
-}
-
-.brand-tag {
-  margin-left: 2px;
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.4;
 }
 
 .hero-title {
@@ -706,6 +737,12 @@ a {
   opacity: 0.92;
 }
 
+.status-text .query-time {
+  margin-top: 8px;
+  font-size: 12px;
+  opacity: 0.82;
+}
+
 .kv {
   display: flex;
   flex-direction: column;
@@ -746,6 +783,19 @@ a {
 .voided-note {
   border-color: #f0d0ca;
   background: #fff8f7;
+}
+
+.notice-card,
+.share-card {
+  border-color: #e1eee7;
+  background: #f8fcf9;
+}
+
+.notice-text {
+  margin: 0;
+  color: #5a7164;
+  font-size: 13px;
+  line-height: 1.7;
 }
 
 .detection-summary {

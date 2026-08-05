@@ -1,20 +1,17 @@
 <template>
   <main class="login-page">
-    <section class="login-visual">
-      <div class="login-brand">
-        <div class="brand-mark large">GX</div>
-        <div>
-          <h1>&#x8C37;&#x82AF;&#x5FEB;&#x68C0;&#x4E91;</h1>
-          <p>&#x98DF;&#x54C1;&#x5FEB;&#x68C0;&#x6570;&#x5B57;&#x5316;&#x7BA1;&#x7406;&#x5E73;&#x53F0;</p>
-        </div>
+    <header class="login-brand-top">
+      <div class="brand-line">
+        <span class="brand-name">谷芯快检云</span>
+        <span class="brand-tag">管理后台</span>
       </div>
-    </section>
+    </header>
 
-    <section class="login-panel">
+    <section class="login-center">
       <div class="login-card">
         <div class="login-card-head">
-          <h2>&#x767B;&#x5F55;&#x7CFB;&#x7EDF;</h2>
-          <p>&#x8BF7;&#x8F93;&#x5165;&#x7BA1;&#x7406;&#x5458;&#x8D26;&#x53F7;</p>
+          <h2>欢迎回来</h2>
+          <p>请输入管理员账号登录</p>
         </div>
         <el-form
           ref="formRef"
@@ -23,24 +20,35 @@
           label-position="top"
           @keyup.enter="submitLogin"
         >
-          <el-form-item label="&#x8D26;&#x53F7;" prop="username">
+          <el-form-item label="账号" prop="username">
             <el-input
               v-model.trim="form.username"
               size="large"
-              placeholder="&#x8BF7;&#x8F93;&#x5165;&#x8D26;&#x53F7;"
+              placeholder="请输入账号"
               autocomplete="username"
-            />
+            >
+              <template #prefix>
+                <Icon name="user" :size="18" />
+              </template>
+            </el-input>
           </el-form-item>
-          <el-form-item label="&#x5BC6;&#x7801;" prop="password">
+          <el-form-item label="密码" prop="password">
             <el-input
               v-model="form.password"
               size="large"
               type="password"
-              placeholder="&#x8BF7;&#x8F93;&#x5165;&#x5BC6;&#x7801;"
+              placeholder="请输入密码"
               autocomplete="current-password"
               show-password
-            />
+            >
+              <template #prefix>
+                <Icon name="lock" :size="18" />
+              </template>
+            </el-input>
           </el-form-item>
+          <div class="login-options">
+            <el-checkbox v-model="rememberMe" size="small">记住我</el-checkbox>
+          </div>
           <el-button
             class="login-button"
             type="primary"
@@ -48,10 +56,26 @@
             :loading="loading"
             @click="submitLogin"
           >
-            &#x8FDB;&#x5165;&#x540E;&#x53F0;
+            进入后台
           </el-button>
         </el-form>
-        <p class="login-safe-tip">&#x8BF7;&#x52FF;&#x5728;&#x516C;&#x5171;&#x7535;&#x8111;&#x4FDD;&#x5B58;&#x8D26;&#x53F7;&#x4FE1;&#x606F;&#x3002;</p>
+
+        <div class="login-demo">
+          <p>演示账号</p>
+          <div class="demo-buttons">
+            <button type="button" class="demo-button" @click="fillDemo('admin', 'admin123')">
+              管理员
+            </button>
+            <button type="button" class="demo-button" @click="fillDemo('company', 'company123')">
+              企业账号
+            </button>
+          </div>
+        </div>
+
+        <p class="login-safe-tip">
+          <Icon name="info" :size="13" />
+          请勿在公共电脑保存账号信息。
+        </p>
       </div>
     </section>
   </main>
@@ -70,16 +94,34 @@ const route = useRoute();
 const authStore = useAuthStore();
 const formRef = ref<FormInstance>();
 const loading = ref(false);
+const rememberMe = ref(false);
 
 const form = reactive({
   username: '',
   password: '',
 });
 
+const savedAccount = localStorage.getItem('admin_remember_account');
+if (savedAccount) {
+  try {
+    const parsed = JSON.parse(savedAccount);
+    form.username = parsed.username || '';
+    rememberMe.value = true;
+  } catch {
+    localStorage.removeItem('admin_remember_account');
+  }
+}
+
 const rules: FormRules = {
-  username: [{ required: true, message: '\u8bf7\u8f93\u5165\u8d26\u53f7', trigger: 'blur' }],
-  password: [{ required: true, message: '\u8bf7\u8f93\u5165\u5bc6\u7801', trigger: 'blur' }],
+  username: [{ required: true, message: '请输入账号', trigger: 'blur' }],
+  password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
 };
+
+function fillDemo(username: string, password: string) {
+  form.username = username;
+  form.password = password;
+  ElMessage.info(`已填入 ${username === 'admin' ? '管理员' : '企业'} 演示账号`);
+}
 
 async function submitLogin() {
   await formRef.value?.validate();
@@ -88,7 +130,12 @@ async function submitLogin() {
   try {
     const data = await loginAdmin(form);
     authStore.setSession(data.access_token, data.admin_user);
-    ElMessage.success('\u767b\u5f55\u6210\u529f');
+    if (rememberMe.value) {
+      localStorage.setItem('admin_remember_account', JSON.stringify({ username: form.username }));
+    } else {
+      localStorage.removeItem('admin_remember_account');
+    }
+    ElMessage.success('登录成功');
     const redirect = typeof route.query.redirect === 'string'
       ? route.query.redirect
       : '/dashboard';

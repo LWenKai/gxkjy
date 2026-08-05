@@ -124,11 +124,11 @@ onShow(() => {
 
       <view class="primary-actions">
         <view class="action-card highlight" @tap="openPrint">
-          <image class="action-icon" src="/static/home-icons/printer.png" mode="aspectFit" />
+          <image class="action-icon" src="/static/icons/printer.svg" mode="aspectFit" />
           <text>打印合格证</text>
         </view>
         <view class="action-card" @tap="goHome">
-          <image class="action-icon" src="/static/tabbar/home-active.png" mode="aspectFit" />
+          <image class="action-icon" src="/static/icons/home.svg" mode="aspectFit" />
           <text>返回首页</text>
         </view>
       </view>

@@ -3,7 +3,7 @@
     <div class="page-heading">
       <div>
         <h1>合格证管理</h1>
-        <p>查看已开具的合格证，复制公开链接并核对对应检测记录。后台不生成、不作废、不重新打印合格证。</p>
+        <p>查看已开具的合格证，复制公开链接、核对对应检测记录，并可对错误证书执行作废。</p>
       </div>
     </div>
 
@@ -103,6 +103,12 @@
               <el-button text type="primary" @click="openDetail(row)">详情</el-button>
               <el-button text type="primary" @click="copyLink(row.qr_url)">复制链接</el-button>
               <el-button text type="primary" @click="openPublicLink(row.qr_url)">预览</el-button>
+              <el-button
+                v-if="row.status === 'normal'"
+                text
+                type="danger"
+                @click="handleVoid(row)"
+              >作废</el-button>
             </div>
           </template>
         </el-table-column>
@@ -150,6 +156,7 @@
               </el-tag>
             </el-descriptions-item>
             <el-descriptions-item label="开具时间">{{ formatDateTime(detail.issue_time) }}</el-descriptions-item>
+            <el-descriptions-item label="打印份数">{{ detail.print_copies || '-' }}</el-descriptions-item>
             <el-descriptions-item label="作废时间">{{ formatDateTime(detail.void_time) }}</el-descriptions-item>
             <el-descriptions-item label="承诺依据" :span="2">{{ detail.commitment_basis }}</el-descriptions-item>
             <el-descriptions-item label="公开链接" :span="2">
@@ -157,6 +164,12 @@
                 <span class="link-text">{{ detail.qr_url }}</span>
                 <el-button text type="primary" @click="copyLink(detail.qr_url)">复制扫码链接</el-button>
                 <el-button text type="primary" @click="openPublicLink(detail.qr_url)">打开扫码页</el-button>
+                <el-button
+                  v-if="detail.status === 'normal'"
+                  text
+                  type="danger"
+                  @click="handleVoid(detail)"
+                >作废合格证</el-button>
               </div>
             </el-descriptions-item>
           </el-descriptions>
@@ -230,6 +243,26 @@
             </el-table>
             <el-empty v-else description="暂无打印日志。" />
           </div>
+
+          <div class="detail-block">
+            <h3>依据资料</h3>
+            <div v-if="detail.evidence_assets?.length" class="evidence-list">
+              <div
+                v-for="asset in detail.evidence_assets"
+                :key="asset.id"
+                class="evidence-item"
+              >
+                <span class="evidence-name">{{ asset.file_name }}</span>
+                <div class="evidence-actions">
+                  <el-tag :type="asset.is_public ? 'success' : 'info'" size="small">
+                    {{ asset.is_public ? '对外公开' : '不公开' }}
+                  </el-tag>
+                  <el-button text type="primary" @click="openPublicLink(asset.file_url)">查看</el-button>
+                </div>
+              </div>
+            </div>
+            <el-empty v-else description="暂无依据资料。" />
+          </div>
         </template>
       </div>
     </el-drawer>
@@ -237,10 +270,10 @@
 </template>
 
 <script setup lang="ts">
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { onMounted, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { exportCertificates, getCertificate, listCertificates } from '@/api/certificates';
+import { exportCertificates, getCertificate, listCertificates, voidAdminCertificate } from '@/api/certificates';
 import { listCompanies } from '@/api/companies';
 import type {
   Certificate,
@@ -363,6 +396,35 @@ async function copyLink(link: string) {
 
 function openPublicLink(link: string) {
   window.open(link, '_blank', 'noopener,noreferrer');
+}
+
+async function handleVoid(row: Certificate) {
+  if (row.status === 'voided') return;
+  try {
+    await ElMessageBox.confirm(
+      `确定要作废合格证「${row.certificate_no}」吗？作废后该证书将不可作为有效流通凭证，且不可恢复。`,
+      '作废合格证',
+      {
+        type: 'warning',
+        confirmButtonText: '确定作废',
+        cancelButtonText: '取消',
+        confirmButtonClass: 'el-button--danger',
+      },
+    );
+  } catch {
+    return;
+  }
+  try {
+    await voidAdminCertificate(row.id);
+    ElMessage.success('合格证已作废');
+    if (detailVisible.value && detail.value?.id === row.id) {
+      detail.value = await getCertificate(row.id);
+    }
+    await loadItems();
+  } catch (error) {
+    const message = (error as { message?: string })?.message || '作废失败，请稍后重试';
+    ElMessage.error(message);
+  }
 }
 
 function certificateTypeLabel(value: CertificateTypeValue) {

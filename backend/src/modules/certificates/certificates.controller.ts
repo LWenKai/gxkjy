@@ -16,11 +16,13 @@ import { type CsvResponse, sendCsv, todayForFilename } from '../../common/csv';
 import { parseBigIntId } from '../../common/id';
 import { AdminAuthGuard } from '../auth/admin-auth.guard';
 import { ClientAuthGuard } from '../auth/client-auth.guard';
+import { RequestWithAdmin } from '../auth/admin-auth.types';
 import { RequestWithClientUser } from '../auth/client-auth.types';
 import { CertificatesService } from './certificates.service';
 import {
   AdminCertificateQueryDto,
   ClientCertificateQueryDto,
+  VoidCertificateDto,
 } from './dto/certificate-query.dto';
 import { CreateCertificateDto } from './dto/create-certificate.dto';
 import { CreatePrintLogDto } from './dto/create-print-log.dto';
@@ -149,6 +151,15 @@ export class AdminCertificatesController {
   @Get(':id')
   get(@Param('id') id: string) {
     return this.certificatesService.getAdmin(parseBigIntId(id));
+  }
+
+  @Post(':id/void')
+  void(
+    @Param('id') id: string,
+    @Body() dto: VoidCertificateDto,
+    @Req() request: RequestWithAdmin,
+  ) {
+    return this.certificatesService.voidAdmin(parseBigIntId(id), request, dto.reason);
   }
 }
 

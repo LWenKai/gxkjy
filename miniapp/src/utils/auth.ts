@@ -4,6 +4,7 @@ const COMPANY_KEY = 'guxin_client_company';
 const EXPIRE_WARNING_KEY = 'guxin_expire_warning';
 const SAVED_USERNAME_KEY = 'guxin_client_saved_username';
 const SAVED_PASSWORD_KEY = 'guxin_client_saved_password';
+const AGREED_PROTOCOL_KEY = 'guxin_client_agreed_protocol';
 
 export interface ClientUser {
   id: string;
@@ -88,6 +89,18 @@ export function savePassword(password: string) {
 
 export function clearSavedPassword() {
   uni.removeStorageSync(SAVED_PASSWORD_KEY);
+}
+
+export function getAgreedProtocol() {
+  return Boolean(uni.getStorageSync(AGREED_PROTOCOL_KEY));
+}
+
+export function saveAgreedProtocol(agreed: boolean) {
+  if (agreed) {
+    uni.setStorageSync(AGREED_PROTOCOL_KEY, '1');
+  } else {
+    uni.removeStorageSync(AGREED_PROTOCOL_KEY);
+  }
 }
 
 export function clearSession() {

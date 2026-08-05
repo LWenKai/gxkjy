@@ -1,36 +1,40 @@
 <template>
   <el-container class="admin-layout">
-    <el-aside width="232px" class="admin-aside">
+    <el-aside :width="collapsed ? '76px' : '232px'" class="admin-aside" :class="{ collapsed }">
       <div class="brand">
-        <div class="brand-mark">GX</div>
-        <div>
+        <span class="brand-logo">
+          <Icon name="shield-check" :size="22" />
+        </span>
+        <div class="brand-text" v-show="!collapsed">
           <div class="brand-title">&#x8C37;&#x82AF;&#x5FEB;&#x68C0;&#x4E91;</div>
           <div class="brand-subtitle">&#x7BA1;&#x7406;&#x540E;&#x53F0;</div>
         </div>
       </div>
 
-      <el-menu class="admin-menu" :default-active="activePath" router>
-        <el-menu-item-group v-for="group in menuGroups" :key="group.title" :title="group.title">
+      <el-menu class="admin-menu" :default-active="activePath" router :collapse="collapsed" :collapse-transition="false">
+        <el-menu-item-group v-for="group in menuGroups" :key="group.title" :title="collapsed ? '' : group.title">
           <el-menu-item v-for="item in group.items" :key="item.path" :index="item.path">
             <Icon :name="item.icon" :size="18" />
             <span>{{ item.label }}</span>
           </el-menu-item>
         </el-menu-item-group>
       </el-menu>
+
+      <div class="aside-footer">
+        <button class="collapse-btn" type="button" @click="collapsed = !collapsed" :title="collapsed ? '展开' : '收起'">
+          <Icon :name="collapsed ? 'panel-left-open' : 'panel-left-close'" :size="18" />
+        </button>
+        <div class="user-block" v-show="!collapsed">
+          <span class="user-avatar">{{ avatarText }}</span>
+          <div class="user-meta">
+            <strong>{{ authStore.displayName }}</strong>
+            <button class="user-logout" type="button" @click="logout">退出登录</button>
+          </div>
+        </div>
+      </div>
     </el-aside>
 
     <el-container>
-      <el-header class="admin-header">
-        <div>
-          <div class="header-title">{{ routeTitle }}</div>
-          <div class="header-subtitle">谷芯快检云管理后台</div>
-        </div>
-        <div class="admin-user">
-          <span>{{ authStore.displayName }}</span>
-          <el-button text type="primary" @click="logout">&#x9000;&#x51FA;&#x767B;&#x5F55;</el-button>
-        </div>
-      </el-header>
-
       <el-main class="admin-main">
         <router-view />
       </el-main>
@@ -39,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 
@@ -92,7 +96,13 @@ const menuGroups = [
   },
 ];
 
-const routeTitle = computed(() => String(route.meta.title || '\u7ba1\u7406\u540e\u53f0'));
+const collapsed = ref(false);
+
+const avatarText = computed(() => {
+  const name = authStore.displayName || '管';
+  return name.slice(0, 1);
+});
+
 const activePath = computed(() => {
   if (route.path.startsWith('/companies')) return '/companies';
   if (route.path.startsWith('/customers')) return '/customers';

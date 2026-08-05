@@ -41,7 +41,7 @@ const stats = computed(() => ({
 }));
 const recentRecords = computed<HomeRecord[]>(() => {
   const records = summary.value?.recent_detection_records || [];
-  return records.slice(0, 1).map((record) => ({
+  return records.slice(0, 3).map((record) => ({
     id: record.id,
     name: record.sample_name || record.product_name || '-',
     project: detectionProject(record),
@@ -50,6 +50,14 @@ const recentRecords = computed<HomeRecord[]>(() => {
     resultClassName: resultClass(record.overall_result),
     detailUrl: `/pages/detection-records/detail?id=${record.id}`,
   }));
+});
+
+const expireBarText = computed(() => {
+  const warning = expireWarning.value;
+  if (!warning) return '';
+  const daysText = warning.days_left <= 0 ? '今天' : `${warning.days_left} 天`;
+  const dateText = formatDate(warning.service_expire_at);
+  return `企业服务还剩 ${daysText} 到期${dateText ? `，到期日：${dateText}` : ''}`;
 });
 
 function go(url: string) {
@@ -133,7 +141,12 @@ onShow(() => {
         </view>
         <text class="company-sub">&#x6B22;&#x8FCE;&#x4F7F;&#x7528;&#x8C37;&#x82AF;&#x5FEB;&#x68C0;&#x4E91;&#x670D;&#x52A1;</text>
       </view>
-      <image class="shield-mark" src="/static/home-icons/company-shield.png" mode="aspectFit" />
+      <image class="shield-mark" src="/static/icons/company-shield.svg" mode="aspectFit" />
+    </view>
+
+    <view v-if="expireBarText" class="expire-bar">
+      <view class="expire-clock"></view>
+      <text class="expire-text">{{ expireBarText }}</text>
     </view>
 
     <view class="stats-card">
@@ -156,21 +169,22 @@ onShow(() => {
     <view class="action-grid">
       <view class="action-card" @tap="go('/pages/certifiable/index')">
         <view class="action-icon-box">
-          <image class="action-icon" src="/static/home-icons/issue-plus.png" mode="aspectFit" />
+          <image class="action-icon" src="/static/icons/issue-plus.svg" mode="aspectFit" />
         </view>
         <view class="action-copy">
           <text class="action-title">&#x5F00;&#x5408;&#x683C;&#x8BC1;</text>
           <text class="action-sub">&#x9009;&#x62E9;&#x5408;&#x683C;&#x68C0;&#x6D4B;&#x8BB0;&#x5F55;</text>
         </view>
       </view>
-      <view class="action-card" @tap="goSmartDetection">
+      <view class="action-card action-soon" @tap="goSmartDetection">
         <view class="action-icon-box">
-          <image class="action-icon" src="/static/home-icons/scan-detect.png" mode="aspectFit" />
+          <image class="action-icon" src="/static/icons/scan-detect.svg" mode="aspectFit" />
         </view>
         <view class="action-copy">
           <text class="action-title">&#x667A;&#x80FD;&#x5224;&#x8BFB;</text>
           <text class="action-sub">&#x5FEB;&#x901F;&#x8BC6;&#x522B;&#x68C0;&#x6D4B;&#x7ED3;&#x679C;</text>
         </view>
+        <text class="soon-tag">&#x5373;&#x5C06;&#x4E0A;&#x7EBF;</text>
       </view>
     </view>
 
@@ -178,42 +192,43 @@ onShow(() => {
       <text class="section-title">&#x5FEB;&#x6377;&#x529F;&#x80FD;</text>
       <view class="quick-grid">
         <view class="quick-item" @tap="go('/pages/detection-records/index')">
-          <image class="quick-icon" src="/static/home-icons/detection-records.png" mode="aspectFit" />
+          <image class="quick-icon" src="/static/icons/detection-records.svg" mode="aspectFit" />
           <view class="quick-copy">
             <text class="quick-title">&#x68C0;&#x6D4B;&#x8BB0;&#x5F55;</text>
             <text class="quick-sub">&#x67E5;&#x770B;&#x68C0;&#x6D4B;&#x7ED3;&#x679C;</text>
           </view>
         </view>
         <view class="quick-item" @tap="go('/pages/certificates/index')">
-          <image class="quick-icon" src="/static/home-icons/certificates.png" mode="aspectFit" />
+          <image class="quick-icon" src="/static/icons/certificates.svg" mode="aspectFit" />
           <view class="quick-copy">
             <text class="quick-title">&#x5408;&#x683C;&#x8BC1;&#x7BA1;&#x7406;</text>
             <text class="quick-sub">&#x67E5;&#x770B;&#x2F;&#x4F5C;&#x5E9F;&#x2F;&#x6253;&#x5370;</text>
           </view>
         </view>
         <view class="quick-item" @tap="go('/pages/products/index')">
-          <image class="quick-icon" src="/static/home-icons/products.png" mode="aspectFit" />
+          <image class="quick-icon" src="/static/icons/products.svg" mode="aspectFit" />
           <view class="quick-copy">
             <text class="quick-title">&#x4EA7;&#x54C1;&#x7BA1;&#x7406;</text>
             <text class="quick-sub">&#x7BA1;&#x7406;&#x5E38;&#x7528;&#x4EA7;&#x54C1;</text>
           </view>
         </view>
         <view class="quick-item" @tap="go('/pages/printer/index')">
-          <image class="quick-icon" src="/static/home-icons/printer.png" mode="aspectFit" />
+          <image class="quick-icon" src="/static/icons/printer.svg" mode="aspectFit" />
           <view class="quick-copy">
             <text class="quick-title">&#x6253;&#x5370;&#x673A;&#x7BA1;&#x7406;</text>
             <text class="quick-sub">&#x8FDE;&#x63A5;&#x4E0E;&#x7BA1;&#x7406;&#x8BBE;&#x5907;</text>
           </view>
         </view>
-        <view class="quick-item" @tap="goDeviceManagement">
-          <image class="quick-icon" src="/static/home-icons/devices.png" mode="aspectFit" />
+        <view class="quick-item quick-soon" @tap="goDeviceManagement">
+          <image class="quick-icon" src="/static/icons/devices.svg" mode="aspectFit" />
           <view class="quick-copy">
             <text class="quick-title">&#x8BBE;&#x5907;&#x7BA1;&#x7406;</text>
             <text class="quick-sub">&#x7BA1;&#x7406;&#x68C0;&#x6D4B;&#x8BBE;&#x5907;</text>
           </view>
+          <text class="soon-badge">&#x5373;&#x5C06;&#x4E0A;&#x7EBF;</text>
         </view>
         <view class="quick-item" @tap="go('/pages/help/index')">
-          <image class="quick-icon" src="/static/home-icons/help.png" mode="aspectFit" />
+          <image class="quick-icon" src="/static/icons/help.svg" mode="aspectFit" />
           <view class="quick-copy">
             <text class="quick-title">&#x4F7F;&#x7528;&#x5E2E;&#x52A9;</text>
             <text class="quick-sub">&#x64CD;&#x4F5C;&#x6307;&#x5357;&#x4E0E;&#x8BF4;&#x660E;</text>
@@ -227,7 +242,7 @@ onShow(() => {
         <text class="section-title">&#x6700;&#x8FD1;&#x68C0;&#x6D4B;&#x8BB0;&#x5F55;</text>
         <view class="more-link" @tap="go('/pages/detection-records/index')">
           <text>&#x67E5;&#x770B;&#x66F4;&#x591A;</text>
-          <image class="more-icon" src="/static/home-icons/chevron-small.png" mode="aspectFit" />
+          <image class="more-icon" src="/static/icons/chevron-small.svg" mode="aspectFit" />
         </view>
       </view>
       <view v-if="loading && !recentRecords.length" class="empty-row">&#x6B63;&#x5728;&#x52A0;&#x8F7D;&#x2E;&#x2E;&#x2E;</view>
@@ -241,18 +256,19 @@ onShow(() => {
           <view class="record-title-row">
             <text class="record-dot"></text>
             <text class="record-name">{{ record.name }}</text>
-            <text class="result-badge" :class="record.resultClassName">{{ record.resultLabel }}</text>
           </view>
           <text class="record-project">{{ record.project }}</text>
           <view class="record-time">
-            <view class="clock-icon"></view>
             <text>{{ record.time }}</text>
           </view>
         </view>
-        <view class="record-icon">
-          <view class="record-icon-board"></view>
+        <view class="record-right">
+          <view class="result-badge" :class="record.resultClassName">
+            <text class="result-dot"></text>
+            <text>{{ record.resultLabel }}</text>
+          </view>
+          <text class="record-arrow">›</text>
         </view>
-        <text class="record-arrow">›</text>
       </view>
       <view v-if="!loading && !recentRecords.length" class="empty-row">&#x6682;&#x65E0;&#x68C0;&#x6D4B;&#x8BB0;&#x5F55;</view>
     </view>
@@ -269,16 +285,51 @@ onShow(() => {
 
 .company-card {
   align-items: center;
-  background: #16a34a;
+  background: linear-gradient(135deg, #0b7a4b 0%, #0f8f58 52%, #13a6b3 100%);
   border-radius: 32rpx;
-  box-shadow: 0 12rpx 30rpx rgba(22, 163, 74, 0.22);
+  box-shadow: 0 16rpx 38rpx rgba(12, 65, 43, 0.2);
   display: flex;
-  height: 146rpx;
+  height: 160rpx;
   justify-content: space-between;
   margin-bottom: 22rpx;
   overflow: hidden;
-  padding: 0 30rpx;
+  padding: 0 32rpx;
   position: relative;
+}
+
+.company-card::after {
+  background: radial-gradient(circle at 90% 10%, rgba(255, 255, 255, 0.22), transparent 42%);
+  content: "";
+  inset: 0;
+  position: absolute;
+}
+
+.expire-bar {
+  align-items: center;
+  background: linear-gradient(135deg, #fff7e8, #fff3da);
+  border: 1rpx solid #ffe2ae;
+  border-radius: 22rpx;
+  box-shadow: 0 10rpx 24rpx rgba(184, 134, 11, 0.1);
+  display: flex;
+  gap: 16rpx;
+  margin-bottom: 22rpx;
+  padding: 22rpx 24rpx;
+}
+
+.expire-clock {
+  background: #b76a00;
+  border-radius: 999rpx;
+  flex: 0 0 auto;
+  height: 16rpx;
+  width: 16rpx;
+}
+
+.expire-text {
+  color: #a86100;
+  flex: 1;
+  font-size: 25rpx;
+  font-weight: 700;
+  line-height: 1.5;
 }
 
 .company-copy {
@@ -432,6 +483,28 @@ onShow(() => {
   margin-top: 12rpx;
 }
 
+.action-card {
+  position: relative;
+}
+
+.action-card.action-soon {
+  opacity: 0.92;
+}
+
+.soon-tag {
+  background: rgba(15, 143, 88, 0.1);
+  border-radius: 999rpx;
+  color: #0f8f58;
+  flex: 0 0 auto;
+  font-size: 20rpx;
+  font-weight: 800;
+  padding: 6rpx 14rpx;
+  position: absolute;
+  right: 18rpx;
+  top: 18rpx;
+  z-index: 2;
+}
+
 .quick-card {
   background: #ffffff;
   border: 1rpx solid #eef2f7;
@@ -468,6 +541,21 @@ onShow(() => {
   min-height: 128rpx;
   min-width: 0;
   padding: 12rpx 6rpx;
+  position: relative;
+}
+
+.quick-item.quick-soon {
+  opacity: 0.92;
+}
+
+.soon-badge {
+  background: rgba(15, 143, 88, 0.1);
+  border-radius: 999rpx;
+  color: #0f8f58;
+  font-size: 19rpx;
+  font-weight: 800;
+  margin-top: 8rpx;
+  padding: 4rpx 12rpx;
 }
 
 .quick-icon {
@@ -539,8 +627,13 @@ onShow(() => {
 .record-item {
   align-items: center;
   display: flex;
-  gap: 16rpx;
-  min-height: 104rpx;
+  gap: 18rpx;
+  min-height: 96rpx;
+  padding: 16rpx 0;
+}
+
+.record-item:not(:last-child) {
+  border-bottom: 1rpx solid #f0f4f2;
 }
 
 .record-left {
@@ -558,25 +651,38 @@ onShow(() => {
   background: #16a34a;
   border-radius: 50%;
   flex: 0 0 auto;
-  height: 12rpx;
-  width: 12rpx;
+  height: 10rpx;
+  margin-top: 2rpx;
+  width: 10rpx;
 }
 
 .record-name {
   color: #1f2937;
+  flex: 1;
   font-size: 30rpx;
   font-weight: 800;
-  max-width: 260rpx;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .result-badge {
-  border-radius: 16rpx;
+  align-items: center;
+  border-radius: 999rpx;
+  display: inline-flex;
+  flex: 0 0 auto;
   font-size: 22rpx;
   font-weight: 800;
-  padding: 5rpx 12rpx;
+  gap: 8rpx;
+  padding: 8rpx 18rpx;
+}
+
+.result-dot {
+  border-radius: 50%;
+  flex: 0 0 auto;
+  height: 12rpx;
+  width: 12rpx;
 }
 
 .result-badge.success {
@@ -584,120 +690,57 @@ onShow(() => {
   color: #16a34a;
 }
 
+.result-badge.success .result-dot {
+  background: #16a34a;
+}
+
 .result-badge.danger {
   background: #fee2e2;
   color: #b91c1c;
 }
 
+.result-badge.danger .result-dot {
+  background: #b91c1c;
+}
+
 .record-project {
-  color: #1f2937;
+  color: #596b62;
   display: block;
   font-size: 24rpx;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1;
-  margin: 18rpx 0 0 24rpx;
+  margin-top: 12rpx;
 }
 
 .record-time {
   align-items: center;
-  color: #6b7280;
+  color: #8a9a90;
   display: flex;
   font-size: 22rpx;
   font-weight: 500;
-  gap: 7rpx;
-  line-height: 24rpx;
-  margin: 20rpx 0 0 24rpx;
+  gap: 8rpx;
+  line-height: 1;
+  margin-top: 12rpx;
 }
 
-.clock-icon {
-  border: 2rpx solid #8aa097;
-  border-radius: 999rpx;
-  box-sizing: border-box;
-  display: flex;
-  flex: 0 0 22rpx;
-  height: 22rpx;
-  position: relative;
-  width: 22rpx;
-}
-
-.clock-icon::before {
-  background: #8aa097;
-  border-radius: 999rpx;
-  content: "";
-  height: 7rpx;
-  left: 9rpx;
-  position: absolute;
-  top: 4rpx;
-  width: 2rpx;
-}
-
-.clock-icon::after {
-  background: #8aa097;
-  border-radius: 999rpx;
-  content: "";
-  height: 2rpx;
-  left: 9rpx;
-  position: absolute;
-  top: 10rpx;
-  width: 6rpx;
-}
-
-.record-time text {
-  display: block;
-  line-height: 24rpx;
-}
-
-.record-icon {
+.record-right {
   align-items: center;
-  background: #ecfdf5;
-  border-radius: 18rpx;
   display: flex;
-  flex: 0 0 64rpx;
-  height: 64rpx;
-  justify-content: center;
-  width: 64rpx;
-}
-
-.record-icon-board {
-  border: 4rpx solid #9fd8bd;
-  border-radius: 8rpx;
-  box-sizing: border-box;
-  height: 34rpx;
-  position: relative;
-  width: 28rpx;
-}
-
-.record-icon-board::before,
-.record-icon-board::after {
-  background: #16a34a;
-  border-radius: 999rpx;
-  content: "";
-  height: 3rpx;
-  left: 5rpx;
-  position: absolute;
-  right: 5rpx;
-}
-
-.record-icon-board::before {
-  top: 9rpx;
-}
-
-.record-icon-board::after {
-  top: 18rpx;
+  flex: 0 0 auto;
+  gap: 14rpx;
 }
 
 .record-arrow {
-  color: #9aa6a1;
+  color: #b8c5be;
   display: block;
-  flex: 0 0 32rpx;
-  font-size: 40rpx;
+  flex: 0 0 auto;
+  font-size: 36rpx;
   font-weight: 300;
-  height: 32rpx;
-  line-height: 30rpx;
-  margin-left: 4rpx;
+  height: 36rpx;
+  line-height: 34rpx;
   opacity: 0.72;
   text-align: center;
-  width: 32rpx;
+  width: 24rpx;
 }
 
 .empty-row {

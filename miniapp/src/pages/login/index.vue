@@ -2,7 +2,16 @@
 import { onMounted, ref } from 'vue';
 import { loginClient } from '@/api/client';
 import { getLastRequestError } from '@/api/http';
-import { getSavedPassword, getSavedUsername, savePassword, saveUsername, clearSavedPassword, setSession } from '@/utils/auth';
+import {
+  getAgreedProtocol,
+  getSavedPassword,
+  getSavedUsername,
+  saveAgreedProtocol,
+  savePassword,
+  saveUsername,
+  clearSavedPassword,
+  setSession,
+} from '@/utils/auth';
 
 const INPUT_REQUIRED = '\u8bf7\u8f93\u5165\u8d26\u53f7\u548c\u5bc6\u7801';
 const LOGIN_SUCCESS = '\u767b\u5f55\u6210\u529f';
@@ -15,8 +24,14 @@ const EXPIRE_CONFIRM = '\u6211\u77e5\u9053\u4e86';
 const username = ref('');
 const password = ref('');
 const rememberPassword = ref(false);
+const agreeProtocol = ref(false);
 const loading = ref(false);
 const networkDetail = ref('');
+
+const PROTOCOL_TITLE = {
+  user: '\u7528\u6237\u534f\u8bae',
+  privacy: '\u9690\u79c1\u653f\u7b56',
+};
 
 onMounted(() => {
   username.value = getSavedUsername();
@@ -25,6 +40,7 @@ onMounted(() => {
     password.value = savedPassword;
     rememberPassword.value = true;
   }
+  agreeProtocol.value = getAgreedProtocol();
 });
 
 function normalizeError(error: unknown) {
@@ -58,11 +74,31 @@ function goHome() {
   uni.switchTab({ url: '/pages/index/index' });
 }
 
+function openProtocol(type: 'user' | 'privacy') {
+  uni.showModal({
+    title: PROTOCOL_TITLE[type],
+    content: type === 'user'
+      ? '\u8bf7\u5728\u5fae\u4fe1\u516c\u4f17\u5e73\u53f0\u586b\u5199\u5e76\u53d1\u5e03\u300a\u7528\u6237\u534f\u8bae\u300b\u540e\uff0c\u5c06\u94fe\u63a5\u586b\u5165\u6b64\u5904\u8df3\u8f6c\u3002'
+      : '\u8bf7\u5728\u5fae\u4fe1\u516c\u4f17\u5e73\u53f0\u586b\u5199\u5e76\u53d1\u5e03\u300a\u9690\u79c1\u4fdd\u62a4\u6307\u5f15\u300b\u540e\uff0c\u5c06\u94fe\u63a5\u586b\u5165\u6b64\u5904\u8df3\u8f6c\u3002',
+    showCancel: false,
+    confirmText: '\u6211\u77e5\u9053\u4e86',
+  });
+}
+
+function toggleAgree() {
+  agreeProtocol.value = !agreeProtocol.value;
+  saveAgreedProtocol(agreeProtocol.value);
+}
+
 async function submit() {
   const account = username.value.trim();
   const pwd = password.value;
   if (!account || !pwd) {
     uni.showToast({ title: INPUT_REQUIRED, icon: 'none' });
+    return;
+  }
+  if (!agreeProtocol.value) {
+    uni.showToast({ title: '\u8bf7\u5148\u9605\u8bfb\u5e76\u540c\u610f\u7528\u6237\u534f\u8bae\u4e0e\u9690\u79c1\u653f\u7b56', icon: 'none' });
     return;
   }
 
@@ -82,6 +118,7 @@ async function submit() {
     } else {
       clearSavedPassword();
     }
+    saveAgreedProtocol(true);
 
     const warning = data.expire_warning as { days_left: number; service_expire_at: string } | null | undefined;
     if (warning) {
@@ -109,48 +146,73 @@ async function submit() {
 
 <template>
   <view class="login-page">
-    <view class="login-glow"></view>
-    <view class="login-orbit"></view>
-    <view class="brand">
-      <text class="brand-name">&#x8C37;&#x82AF;&#x5FEB;&#x68C0;&#x4E91;</text>
-      <text class="brand-sub">&#x4F01;&#x4E1A;&#x5FEB;&#x68C0;&#x8BB0;&#x5F55;&#x4E0E;&#x5408;&#x683C;&#x8BC1;&#x7BA1;&#x7406;</text>
-    </view>
+    <view class="bg-bubble bg-bubble-1"></view>
+    <view class="bg-bubble bg-bubble-2"></view>
 
-    <view class="login-card">
-      <view class="login-card-title">
-        <text>&#x5BA2;&#x6237;&#x767B;&#x5F55;</text>
-        <text>&#x8BF7;&#x8F93;&#x5165;&#x4F01;&#x4E1A;&#x8D26;&#x53F7;&#x7EE7;&#x7EED;&#x4F7F;&#x7528;</text>
+    <view class="login-inner">
+      <view class="brand">
+        <text class="brand-name">谷芯快检云</text>
+        <text class="brand-sub">企业快检记录与合格证管理</text>
       </view>
-      <view class="field">
-        <text class="field-label">&#x8D26;&#x53F7;</text>
-        <input
-          v-model="username"
-          class="input"
-          placeholder="&#x8BF7;&#x8F93;&#x5165;&#x8D26;&#x53F7;"
-          confirm-type="next"
-        />
-      </view>
-      <view class="field">
-        <text class="field-label">&#x5BC6;&#x7801;</text>
-        <input
-          v-model="password"
-          class="input"
-          password
-          placeholder="&#x8BF7;&#x8F93;&#x5165;&#x5BC6;&#x7801;"
-          confirm-type="done"
-          @confirm="submit"
-        />
-      </view>
-      <view class="remember-row" @tap="rememberPassword = !rememberPassword">
-        <checkbox :checked="rememberPassword" color="#0f8f58" />
-        <text>&#x8BB0;&#x4F4F;&#x8D26;&#x53F7;&#x548C;&#x5BC6;&#x7801;&#xFF0C;&#x4E0B;&#x6B21;&#x81EA;&#x52A8;&#x586B;&#x5199;</text>
-      </view>
-      <button class="primary-button login-button" :loading="loading" @tap="submit">&#x767B;&#x5F55;</button>
-      <view v-if="networkDetail" class="network-detail">
-        <text>{{ networkDetail }}</text>
-      </view>
-      <view class="login-help-row">
-        <text>&#x5FD8;&#x8BB0;&#x5BC6;&#x7801;&#x8BF7;&#x8054;&#x7CFB;&#x7BA1;&#x7406;&#x5458;&#x91CD;&#x7F6E;</text>
+
+      <view class="login-card">
+        <view class="form-title">账号登录</view>
+
+        <view class="login-fields">
+          <view class="input-row">
+            <image class="input-icon" src="/static/icons/user.svg" mode="aspectFit" />
+            <view class="input-sep"></view>
+            <input
+              v-model="username"
+              class="input"
+              placeholder="请输入账号"
+              placeholder-class="input-placeholder"
+              confirm-type="next"
+            />
+          </view>
+          <view class="fields-divider"></view>
+          <view class="input-row">
+            <image class="input-icon" src="/static/icons/password.svg" mode="aspectFit" />
+            <view class="input-sep"></view>
+            <input
+              v-model="password"
+              class="input"
+              password
+              placeholder="请输入密码"
+              placeholder-class="input-placeholder"
+              confirm-type="done"
+              @confirm="submit"
+            />
+          </view>
+        </view>
+
+        <view class="form-options">
+          <view class="option-item" @tap="rememberPassword = !rememberPassword">
+            <view class="option-check" :class="{ checked: rememberPassword }">
+              <view v-if="rememberPassword" class="option-tick"></view>
+            </view>
+            <text class="option-text">记住账号和密码</text>
+          </view>
+          <text class="option-link" @tap="uni.showToast({ title: '忘记密码请联系管理员重置', icon: 'none' })">忘记密码？</text>
+        </view>
+
+        <view class="protocol-row" @tap="toggleAgree">
+          <view class="protocol-check" :class="{ checked: agreeProtocol }">
+            <view v-if="agreeProtocol" class="option-tick"></view>
+          </view>
+          <view class="protocol-text">
+            <text>登录即表示同意</text>
+            <text class="protocol-link" @tap.stop="openProtocol('user')">《用户协议》</text>
+            <text>和</text>
+            <text class="protocol-link" @tap.stop="openProtocol('privacy')">《隐私政策》</text>
+          </view>
+        </view>
+
+        <button class="primary-button login-button" :loading="loading" @tap="submit">登 录</button>
+
+        <view v-if="networkDetail" class="network-detail">
+          <text>{{ networkDetail }}</text>
+        </view>
       </view>
     </view>
   </view>
@@ -159,106 +221,244 @@ async function submit() {
 <style scoped>
 .login-page {
   background:
-    radial-gradient(circle at 84% 2%, rgba(19, 166, 179, 0.16), transparent 30%),
-    radial-gradient(circle at 12% 78%, rgba(15, 143, 88, 0.12), transparent 34%),
-    linear-gradient(180deg, #eaf8f2 0%, #f8fcfa 62%, #ffffff 100%);
+    radial-gradient(circle at 80% -8%, rgba(19, 166, 179, 0.14), transparent 28%),
+    radial-gradient(circle at 10% 85%, rgba(15, 143, 88, 0.11), transparent 32%),
+    linear-gradient(180deg, #e9f8f1 0%, #f5fbf8 55%, #ffffff 100%);
   box-sizing: border-box;
   min-height: 100vh;
   overflow: hidden;
-  padding: 132rpx 42rpx 48rpx;
+  padding: 0 42rpx 48rpx;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.login-glow {
-  background: linear-gradient(135deg, rgba(15, 143, 88, 0.14), rgba(19, 166, 179, 0.08));
-  border: 1rpx solid rgba(15, 143, 88, 0.12);
-  border-radius: 80rpx;
-  height: 320rpx;
-  position: absolute;
-  right: -96rpx;
-  top: -88rpx;
-  transform: rotate(12deg);
-  width: 320rpx;
-}
-
-.login-orbit {
-  border: 1rpx solid rgba(15, 143, 88, 0.13);
+.bg-bubble {
   border-radius: 50%;
-  height: 520rpx;
-  left: -240rpx;
   position: absolute;
-  top: 120rpx;
+  pointer-events: none;
+}
+
+.bg-bubble-1 {
   width: 520rpx;
+  height: 520rpx;
+  right: -260rpx;
+  top: -160rpx;
+  background: radial-gradient(circle, rgba(15, 143, 88, 0.12), transparent 68%);
+}
+
+.bg-bubble-2 {
+  width: 380rpx;
+  height: 380rpx;
+  left: -180rpx;
+  bottom: 120rpx;
+  background: radial-gradient(circle, rgba(19, 166, 179, 0.1), transparent 68%);
+}
+
+.login-inner {
+  position: relative;
+  width: 100%;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: auto;
+  margin-bottom: auto;
+  padding-top: 8vh;
 }
 
 .brand {
-  display: grid;
-  gap: 16rpx;
-  margin-bottom: 58rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14rpx;
+  margin-bottom: 54rpx;
   position: relative;
   z-index: 1;
-}
-
-.brand-sub {
-  color: #0f8f58;
-  font-size: 30rpx;
 }
 
 .brand-name {
   color: #083d32;
-  font-size: 72rpx;
+  font-size: 58rpx;
   font-weight: 900;
+  letter-spacing: 3rpx;
+}
+
+.brand-sub {
+  color: #0f8f58;
+  font-size: 28rpx;
+  font-weight: 600;
+  letter-spacing: 1rpx;
 }
 
 .login-card {
-  background: rgba(255, 255, 255, 0.98);
-  border: 1rpx solid rgba(218, 236, 228, 0.92);
-  border-radius: 40rpx;
-  box-shadow: 0 30rpx 72rpx rgba(12, 65, 43, 0.13);
-  padding: 48rpx 36rpx 38rpx;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1rpx solid rgba(218, 236, 228, 0.9);
+  border-radius: 36rpx;
+  box-shadow: 0 24rpx 64rpx rgba(12, 65, 43, 0.12);
+  padding: 48rpx 38rpx 44rpx;
   position: relative;
   z-index: 1;
+  box-sizing: border-box;
 }
 
-.login-card-title {
-  display: grid;
-  gap: 8rpx;
-  margin-bottom: 28rpx;
+.form-title {
+  color: #1f2937;
+  font-size: 34rpx;
+  font-weight: 800;
+  margin-bottom: 34rpx;
+  text-align: center;
 }
 
-.login-card-title text:first-child {
+.login-fields {
+  border: 2rpx solid #e0ece5;
+  border-radius: 20rpx;
+  background: #ffffff;
+  overflow: hidden;
+  margin-bottom: 30rpx;
+}
+
+.input-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100rpx;
+  padding: 0 24rpx;
+  box-sizing: border-box;
+}
+
+.input-icon {
+  flex: 0 0 auto;
+  width: 38rpx;
+  height: 38rpx;
+  margin-right: 22rpx;
+  opacity: 0.62;
+}
+
+.input-sep {
+  flex: 0 0 auto;
+  width: 2rpx;
+  height: 40rpx;
+  background: #e2ece6;
+  margin-right: 22rpx;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  font-size: 30rpx;
   color: #10281f;
-  font-size: 40rpx;
-  font-weight: 900;
+  background: transparent;
+  border: none;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
-.login-card-title text:last-child {
-  color: #6a786f;
-  font-size: 26rpx;
+.fields-divider {
+  height: 2rpx;
+  background: #eef3f0;
+  margin: 0 24rpx;
+}
+
+.input-placeholder {
+  color: #9eb0a6;
+  font-size: 28rpx;
+}
+
+.form-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 34rpx;
+  margin-bottom: 38rpx;
+}
+
+.option-item {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.option-text {
+  color: #4a5e55;
+  font-size: 25rpx;
+  font-weight: 500;
+}
+
+.option-link {
+  color: #0f8f58;
+  font-size: 25rpx;
+  font-weight: 600;
+}
+
+.option-check,
+.protocol-check {
+  flex: 0 0 auto;
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 9rpx;
+  border: 2rpx solid #c2d6cb;
+  background: #f4f9f6;
+  display: grid;
+  place-items: center;
+  transition: all 0.18s ease;
+}
+
+.option-check.checked,
+.protocol-check.checked {
+  background: linear-gradient(135deg, #0b7a4b, #14a3a6);
+  border-color: transparent;
+}
+
+.option-tick {
+  width: 16rpx;
+  height: 9rpx;
+  border-left: 4rpx solid #ffffff;
+  border-bottom: 4rpx solid #ffffff;
+  transform: rotate(-45deg) translateY(-1rpx);
+}
+
+.protocol-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 44rpx;
+  padding: 0 4rpx;
+}
+
+.protocol-text {
+  color: #4a5e55;
+  font-size: 25rpx;
+  line-height: 1.5;
+  flex: 1;
+}
+
+.protocol-link {
+  color: #0f8f58;
+  font-weight: 600;
 }
 
 .login-button {
-  margin-top: 28rpx;
-}
-
-.remember-row {
-  align-items: center;
-  color: #486259;
+  width: 100%;
+  height: 96rpx;
+  background: linear-gradient(135deg, #0b7a4b 0%, #14a3a6 100%);
+  border-radius: 20rpx;
+  box-shadow: 0 16rpx 36rpx rgba(11, 122, 75, 0.26);
+  color: #ffffff;
+  font-size: 32rpx;
+  font-weight: 800;
+  letter-spacing: 8rpx;
   display: flex;
-  font-size: 25rpx;
-  gap: 8rpx;
-  margin-top: 24rpx;
+  align-items: center;
+  justify-content: center;
 }
 
-.remember-row checkbox {
-  transform: scale(0.78);
-}
-
-.login-help-row {
-  color: #128243;
-  font-size: 26rpx;
-  margin-top: 28rpx;
-  text-align: center;
+.login-button::after {
+  border: none;
 }
 
 .network-detail {
@@ -268,7 +468,7 @@ async function submit() {
   color: #9a3412;
   font-size: 23rpx;
   line-height: 1.5;
-  margin-top: 22rpx;
+  margin-top: 24rpx;
   padding: 18rpx;
   word-break: break-all;
 }

@@ -1,5 +1,11 @@
 import { Transform } from 'class-transformer';
-import { IsDateString, IsEnum, IsOptional, IsString, Matches } from 'class-validator';
+import {
+  IsDateString,
+  IsEnum,
+  IsOptional,
+  IsString,
+  Matches,
+} from 'class-validator';
 import { CertificateStatus } from '../../../generated/prisma';
 import { PaginationDto } from '../../../common/pagination.dto';
 import { emptyToUndefined } from '../../../common/query-transform';
@@ -41,4 +47,11 @@ export class AdminCertificateQueryDto extends PaginationDto {
   @IsDateString()
   @Transform(emptyToUndefined)
   date_to?: string;
+}
+
+export class VoidCertificateDto {
+  @IsOptional()
+  @IsString()
+  @Transform(emptyToUndefined)
+  reason?: string;
 }

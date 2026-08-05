@@ -38,3 +38,11 @@ export function getCertificate(id: string) {
     method: 'GET',
   });
 }
+
+export function voidAdminCertificate(id: string, reason?: string) {
+  return request<Certificate>({
+    url: `/admin/certificates/${id}/void`,
+    method: 'POST',
+    data: reason ? { reason } : {},
+  });
+}

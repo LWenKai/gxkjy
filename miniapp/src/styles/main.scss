@@ -26,6 +26,7 @@ button::after {
   box-shadow: 0 10rpx 22rpx rgba(17, 93, 65, 0.08);
   color: #0f8f58;
   display: flex;
+  flex: 0 0 auto;
   font-size: 28rpx;
   font-weight: 700;
   height: 64rpx;

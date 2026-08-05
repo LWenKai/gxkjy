@@ -194,28 +194,28 @@ onShow(() => {
     <view class="menu-card">
       <text class="card-title">&#x529F;&#x80FD;&#x8BBE;&#x7F6E;</text>
       <view class="menu-row" @tap="goProducts">
-        <image class="menu-icon" src="/static/profile-icons/products.png" mode="aspectFit" />
+        <image class="menu-icon" src="/static/icons/products.svg" mode="aspectFit" />
         <text class="menu-text">&#x5E38;&#x7528;&#x4EA7;&#x54C1;&#x7BA1;&#x7406;</text>
         <text class="menu-arrow">›</text>
       </view>
       <view class="menu-row" @tap="goPrinter">
-        <image class="menu-icon" src="/static/profile-icons/printer.png" mode="aspectFit" />
+        <image class="menu-icon" src="/static/icons/printer.svg" mode="aspectFit" />
         <text class="menu-text">&#x6253;&#x5370;&#x673A;&#x7BA1;&#x7406;</text>
         <text class="menu-arrow">›</text>
       </view>
       <view class="menu-row" @tap="changePassword">
-        <image class="menu-icon" src="/static/profile-icons/password.png" mode="aspectFit" />
+        <image class="menu-icon" src="/static/icons/password.svg" mode="aspectFit" />
         <text class="menu-text">&#x4FEE;&#x6539;&#x5BC6;&#x7801;</text>
         <text class="menu-arrow">›</text>
       </view>
       <view class="menu-row" @tap="clearCache">
-        <image class="menu-icon" src="/static/profile-icons/cache.png" mode="aspectFit" />
+        <image class="menu-icon" src="/static/icons/cache.svg" mode="aspectFit" />
         <text class="menu-text">&#x6E05;&#x9664;&#x7F13;&#x5B58;</text>
         <text class="menu-side">{{ cacheSizeText }}</text>
         <text class="menu-arrow">›</text>
       </view>
       <view class="menu-row" @tap="showAbout">
-        <image class="menu-icon" src="/static/profile-icons/about.png" mode="aspectFit" />
+        <image class="menu-icon" src="/static/icons/about.svg" mode="aspectFit" />
         <text class="menu-text">&#x5173;&#x4E8E;&#x8C37;&#x82AF;&#x5FEB;&#x68C0;&#x4E91;</text>
         <text class="menu-side">V2.0.0</text>
         <text class="menu-arrow">›</text>
