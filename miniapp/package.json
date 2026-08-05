@@ -5,6 +5,7 @@
   "scripts": {
     "dev:mp-weixin": "uni -p mp-weixin",
     "build:mp-weixin": "uni build -p mp-weixin && node scripts/copy-print-vendor.cjs",
+    "build:mp-weixin:prod": "VITE_API_BASE_URL=https://api.gxkjy.com/api uni build -p mp-weixin && node scripts/copy-print-vendor.cjs",
     "lint": "echo \"miniapp lint placeholder\""
   },
   "dependencies": {
