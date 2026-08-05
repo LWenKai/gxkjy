@@ -289,7 +289,7 @@ async function loadData() {
 
 <style scoped>
 .dashboard-page {
-  gap: 18px;
+  gap: 16px;
 }
 
 /* 欢迎条 */
@@ -358,12 +358,12 @@ async function loadData() {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 22px;
-  border-radius: 20px;
+  gap: 14px;
+  padding: 18px 20px;
+  border-radius: 16px;
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(248, 253, 251, 0.92));
   border: 1px solid rgba(225, 235, 230, 0.9);
-  box-shadow: 0 16px 40px rgba(39, 78, 58, 0.07);
+  box-shadow: 0 12px 30px rgba(39, 78, 58, 0.06);
   cursor: pointer;
   text-align: left;
   font: inherit;
@@ -375,7 +375,7 @@ async function loadData() {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: 20px;
+  border-radius: 16px;
   padding: 1px;
   background: linear-gradient(135deg, rgba(15, 143, 88, 0.5), transparent 45%);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -388,7 +388,7 @@ async function loadData() {
 
 .kpi-card:hover {
   border-color: rgba(15, 122, 50, 0.4);
-  box-shadow: 0 22px 48px rgba(25, 62, 37, 0.14);
+  box-shadow: 0 18px 40px rgba(25, 62, 37, 0.12);
   transform: translateY(-3px);
 }
 
@@ -399,9 +399,9 @@ async function loadData() {
 .kpi-icon {
   display: grid;
   place-items: center;
-  width: 50px;
-  height: 50px;
-  border-radius: 15px;
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
   color: var(--guxin-green);
   flex: 0 0 auto;
   box-shadow: inset 0 0 0 1px rgba(15, 143, 88, 0.08);
@@ -444,16 +444,16 @@ async function loadData() {
 .today-cards {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-top: 16px;
+  gap: 12px;
+  margin-top: 14px;
 }
 
 .today-card {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 18px;
-  border-radius: 18px;
+  padding: 16px;
+  border-radius: 14px;
   background: linear-gradient(135deg, rgba(243, 250, 246, 0.9), rgba(255, 255, 255, 0.7));
   border: 1px solid rgba(159, 216, 193, 0.5);
   position: relative;
@@ -579,16 +579,16 @@ async function loadData() {
 .risk-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 14px;
+  gap: 8px;
+  margin-top: 12px;
 }
 
 .risk-item {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 14px 16px;
-  border-radius: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
   background: rgba(248, 251, 250, 0.8);
   border: 1px solid rgba(225, 235, 230, 0.8);
   color: var(--guxin-muted);
@@ -636,8 +636,8 @@ async function loadData() {
 .quick-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 14px;
+  gap: 10px;
+  margin-top: 12px;
 }
 
 .quick-btn {
@@ -645,9 +645,9 @@ async function loadData() {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 15px;
+  padding: 13px;
   border: 1px solid rgba(159, 216, 193, 0.6);
-  border-radius: 16px;
+  border-radius: 13px;
   background: linear-gradient(135deg, #ffffff, #f3faf6);
   color: var(--guxin-green-deep);
   font-size: 14px;

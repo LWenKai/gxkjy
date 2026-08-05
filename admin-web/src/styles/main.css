@@ -14,10 +14,10 @@
   --guxin-bg: #f6faf8;
   --guxin-warning: #d98600;
   --guxin-danger: #c93f34;
-  --guxin-radius: 12px;
-  --guxin-radius-lg: 18px;
-  --guxin-shadow: 0 18px 42px rgba(26, 64, 49, 0.07);
-  --guxin-shadow-strong: 0 24px 64px rgba(19, 47, 37, 0.14);
+  --guxin-radius: 10px;
+  --guxin-radius-lg: 16px;
+  --guxin-shadow: 0 12px 30px rgba(26, 64, 49, 0.06);
+  --guxin-shadow-strong: 0 18px 46px rgba(19, 47, 37, 0.12);
   --guxin-gradient: linear-gradient(135deg, #064b38 0%, #0b7a4b 58%, #14a3a6 100%);
 }
 
@@ -80,7 +80,7 @@ a {
   z-index: 1;
   display: flex;
   justify-content: center;
-  padding: 32px 24px 0;
+  padding: 26px 24px 0;
   width: 100%;
 }
 
@@ -119,40 +119,49 @@ a {
 
 .login-card {
   width: 100%;
-  max-width: 420px;
+  max-width: 400px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(249, 253, 251, 0.98));
   border: 1px solid rgba(220, 233, 227, 0.9);
-  border-radius: 24px;
+  border-radius: 20px;
   box-shadow: var(--guxin-shadow-strong);
-  padding: 40px 34px 30px;
+  padding: 34px 30px 26px;
   backdrop-filter: blur(14px);
 }
 
 .login-card-head {
-  margin-bottom: 28px;
+  margin-bottom: 22px;
   text-align: center;
 }
 
 .login-card h2 {
   color: var(--guxin-green-deep);
-  font-size: 26px;
+  font-size: 24px;
   margin: 0;
 }
 
 .login-card-head p {
   color: var(--guxin-muted);
-  margin: 8px 0 0;
-  font-size: 14px;
+  margin: 6px 0 0;
+  font-size: 13px;
 }
 
 .login-card .el-input {
-  --el-input-border-radius: 12px;
+  --el-input-border-radius: 10px;
 }
 
 .login-card .el-input__prefix {
   color: var(--guxin-green);
   margin-right: 6px;
+}
+
+.login-card .el-input__wrapper {
+  box-shadow: 0 0 0 1px rgba(15, 143, 88, 0.18) inset;
+  transition: box-shadow 0.18s ease;
+}
+
+.login-card .el-input__wrapper.is-focus {
+  box-shadow: 0 0 0 1px var(--guxin-green) inset, 0 0 0 4px rgba(15, 143, 88, 0.1);
 }
 
 .login-options {
@@ -516,8 +525,8 @@ a {
 .panel {
   background: rgba(255, 255, 255, 0.97);
   border: 1px solid rgba(225, 235, 230, 0.96);
-  border-radius: 18px;
-  padding: 22px;
+  border-radius: 16px;
+  padding: 18px;
   box-shadow: var(--guxin-shadow);
   min-width: 0;
   backdrop-filter: blur(6px);
