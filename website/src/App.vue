@@ -33,30 +33,58 @@ const visibleMaterials = computed(() =>
 );
 
 const navItems = [
-  ['方案', '#solutions'],
-  ['产品服务', '#services'],
-  ['快检云', '#cloud'],
-  ['建设流程', '#process'],
-  ['资料', '#materials'],
-  ['联系', '#contact'],
+  ['首页', '#top'],
+  ['关于我们', '#about'],
+  ['产品中心', '#products'],
+  ['解决方案', '#solutions'],
+  ['谷芯快检云', '#cloud'],
+  ['服务项目', '#services'],
+  ['新闻动态', '#news'],
+  ['联系我们', '#contact'],
 ];
 
-const capabilityCards = [
+const stats = [
+  { num: '2007', label: '团队深耕快检领域' },
+  { num: '6+', label: '典型服务行业' },
+  { num: '3档', label: '标准化配置方案' },
+  { num: '1套', label: '快检云管理闭环' },
+];
+
+const businessBlocks = [
   {
-    title: '快检室整体配置',
-    text: '围绕检测项目、场地条件、使用人员和管理要求，给出基础型、标准型、提升型配置建议。',
+    title: '科学仪器与样品前处理',
+    text: '提供智能化的实验室基础装备与前处理工具，提升检测效率与操作规范。',
   },
   {
-    title: '设备与耗材配套',
-    text: '覆盖农残、兽残、常见食品安全项目相关仪器、试剂耗材、前处理工具和日常补给。',
+    title: '食品快检设备与试剂耗材',
+    text: '涵盖农残、兽残等快检设备、胶体金检测卡与试剂，满足基层筛查需求。',
   },
   {
-    title: '合格证打印闭环',
-    text: '把检测记录、承诺达标合格证、标签打印和扫码查询串起来，减少重复录入。',
+    title: '合格证打印与信息化',
+    text: '标签打印、二维码查询与谷芯快检云协同，赋能快检数字化管理。',
   },
   {
-    title: '数据管理工具',
-    text: '谷芯快检云支持检测记录留存、合格证开具、公开查询、企业资料展示和打印记录管理。',
+    title: '第三方检测与外包服务',
+    text: '依托专业资质与项目经验，为社会提供权威、规范的检测支撑。',
+  },
+];
+
+const productGroups = [
+  {
+    title: '食品安全检测仪',
+    items: ['多功能光谱检测仪', '农药残留快速检测仪', '胶体金读卡仪', '劣质油检测仪'],
+  },
+  {
+    title: '试剂与耗材',
+    items: ['农残酶法试剂', '胶体金检测卡', '样品前处理工具', '日常耗材补给'],
+  },
+  {
+    title: '合格证与打印',
+    items: ['合格证智能机', '标签打印机', '60×80mm 合格证纸', '二维码查询贴'],
+  },
+  {
+    title: '软件与信息化',
+    items: ['谷芯快检云', '检测记录管理', '企业资料展示', '扫码公开查询'],
   },
 ];
 
@@ -94,12 +122,58 @@ const scenarioCards = [
 ];
 
 const serviceCards = [
-  ['食品安全检测仪器', '多参数检测、农残检测、常见食品安全项目快检设备配置建议。'],
-  ['试剂耗材补给', '按检测项目和使用频次配置常用试剂、耗材和前处理工具。'],
-  ['合格证打印设备', '配套标签打印、二维码查询和承诺达标合格证开具流程。'],
-  ['快检室台面配套', '样品处理、检测操作、资料留存等基础配套建议。'],
-  ['谷芯快检云', '检测记录、合格证、扫码公开页和打印记录管理。'],
-  ['安装培训与售后', '根据项目情况提供安装指导、操作培训、远程支持和耗材补给提醒。'],
+  ['快检室建设', '按场地条件输出设备、耗材、打印、数据平台和配套工具建议。'],
+  ['第三方检测对接', '协助对接专业检测资源，形成权威检测支撑。'],
+  ['快检外包服务', '为不具备自检条件的客户提供检测与开证外包支持。'],
+  ['安装与培训', '山西省内可上门安装指导、账号配置和操作培训。'],
+  ['售后与补给', '远程技术支持、耗材补给提醒与设备使用答疑。'],
+  ['资料与合规', '检测记录、合格证、公开查询入口统一管理，便于验收与检查。'],
+];
+
+const newsList = [
+  {
+    tag: '企业动态',
+    date: '2026-07-27',
+    title: '谷芯快检云上线扫码公开查询，合格证状态一键可查',
+    desc: '采购方、消费者与监管人员扫码即可确认合格证有效性、查看产品承诺信息与检测依据。',
+  },
+  {
+    tag: '食安科普',
+    date: '2026-07-20',
+    title: '夏季凉拌菜风险提醒：农残与微生物双把关',
+    desc: '高温季节微生物繁殖快，建议出库前完成快检并留存记录，降低食安风险。',
+  },
+  {
+    tag: '产品专题',
+    date: '2026-07-10',
+    title: '合格证智能机 + 标签打印：让开证从手动变流畅',
+    desc: '从检测记录到标签打印再到扫码查询，形成可追溯的合格证闭环。',
+  },
+  {
+    tag: '行业资讯',
+    date: '2026-06-30',
+    title: '幼儿园食品安全新规落地，台账与留样更受关注',
+    desc: '新规强调主体责任，快检记录与合格证留存成为食堂日常管理的基础动作。',
+  },
+];
+
+const guarantees = [
+  {
+    title: '现场安装与培训',
+    text: '山西省内可根据项目情况提供上门安装指导、账号配置和操作培训，让客户真正用起来。',
+  },
+  {
+    title: '耗材持续补给',
+    text: '按检测项目和使用频次提醒试剂耗材补给，避免设备到位后“无米下锅”。',
+  },
+  {
+    title: '远程技术支持',
+    text: '使用答疑、数据对接、打印适配等问题可通过微信/电话远程沟通，减少停机等待。',
+  },
+  {
+    title: '资料合规留存',
+    text: '检测记录、合格证、公开查询入口统一管理，便于客户验收、监管检查和企业自证。',
+  },
 ];
 
 const processSteps = [
@@ -109,24 +183,6 @@ const processSteps = [
   ['04', '试运行', '用真实样品流程跑通检测、开证、打印和扫码查询。'],
   ['05', '资料留存', '形成日常检测记录、合格证记录和公开查询资料。'],
   ['06', '后续支持', '提供耗材补给、使用答疑和后续设备数据适配沟通。'],
-];
-
-const packageTypes = [
-  {
-    title: '基础型',
-    tag: '适合起步使用',
-    text: '满足常见快检、基础台账、少量合格证打印和日常管理。',
-  },
-  {
-    title: '标准型',
-    tag: '适合稳定运行',
-    text: '适合配送、合作社、食堂等需要稳定检测、留档和扫码查询的场景。',
-  },
-  {
-    title: '提升型',
-    tag: '适合项目配套',
-    text: '面向检测项目更多、管理要求更高、需要多角色协同和资料归档的客户。',
-  },
 ];
 
 onMounted(async () => {
@@ -160,14 +216,17 @@ onMounted(async () => {
     </header>
 
     <main id="top">
+      <!-- 首屏 -->
       <section class="hero">
         <div class="hero-copy">
           <span class="eyebrow">山西谷芯科技有限公司</span>
-          <h1>{{ heroTitle }}</h1>
-          <p>{{ heroSubtitle }}</p>
+          <h1>食品安全快检室<br />整体解决方案服务商</h1>
+          <p>
+            围绕检测仪器、试剂耗材、合格证打印与谷芯快检云，为合作社、配送企业、学校食堂和加工企业提供从配置到落地的快检室配套服务。
+          </p>
           <div class="hero-actions">
             <a class="primary-btn" href="#contact">{{ settings.primary_button_text || '获取配置方案' }}</a>
-            <a class="secondary-btn" href="#services">{{ settings.secondary_button_text || '查看服务能力' }}</a>
+            <a class="secondary-btn" href="#products">{{ settings.secondary_button_text || '查看产品中心' }}</a>
           </div>
           <div class="hero-badges">
             <span>快检室建设</span>
@@ -191,35 +250,78 @@ onMounted(async () => {
             <span>查询</span>
           </div>
           <div class="board-metrics">
-            <div><strong>6类</strong><span>典型应用场景</span></div>
-            <div><strong>3档</strong><span>配置方案建议</span></div>
-            <div><strong>1套</strong><span>快检云管理闭环</span></div>
+            <div v-for="item in stats" :key="item.label">
+              <strong>{{ item.num }}</strong>
+              <span>{{ item.label }}</span>
+            </div>
           </div>
         </div>
       </section>
 
+      <!-- 关于我们 -->
+      <section id="about" class="section about-section">
+        <div class="about-grid">
+          <div class="about-intro">
+            <span class="eyebrow">关于我们</span>
+            <h2>不只是卖设备，更帮客户把快检室真正跑起来</h2>
+            <p>
+              {{ settings.company_intro }}
+              我们更关注客户能不能上手、记录能不能留住、合格证能不能顺畅开具、后续耗材和使用问题能不能有人对接。
+            </p>
+            <div class="about-meta">
+              <div><strong>山西谷芯科技有限公司</strong><span>主体运营单位</span></div>
+              <div><strong>谷芯快检云</strong><span>自有 SaaS 管理平台</span></div>
+            </div>
+          </div>
+          <div class="about-stats">
+            <div v-for="item in stats" :key="item.label" class="about-stat">
+              <strong>{{ item.num }}</strong>
+              <span>{{ item.label }}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 主营业务 -->
       <section class="section punch-section">
         <div>
-          <span class="eyebrow">为什么要找谷芯科技</span>
-          <h2>不是只买一台仪器，而是把快检室真正跑起来</h2>
+          <span class="eyebrow">主营业务</span>
+          <h2>四大业务方向，覆盖快检室日常运行的每个环节</h2>
         </div>
         <p>
-          {{ settings.company_intro }}
-          我们更关注客户能不能上手、记录能不能留住、合格证能不能顺畅开具、后续耗材和使用问题能不能有人对接。
+          从场地配置、设备耗材、合格证开具到数据留存，谷芯科技提供的是一套可落地的整体配套，而不是单点产品。
         </p>
       </section>
 
-      <section class="section capability-grid">
-        <article v-for="item in capabilityCards" :key="item.title" class="capability-card">
-          <span></span>
+      <section class="section business-grid">
+        <article v-for="item in businessBlocks" :key="item.title" class="business-card">
+          <span class="business-dot"></span>
           <h3>{{ item.title }}</h3>
           <p>{{ item.text }}</p>
         </article>
       </section>
 
+      <!-- 产品中心 -->
+      <section id="products" class="section">
+        <div class="section-head wide">
+          <span class="eyebrow">产品中心</span>
+          <h2>检测仪器、试剂耗材、打印与软件，分类清晰可查</h2>
+          <p>第一版官网不堆大量型号，重点展示产品范围。具体型号、检测项目和数量，按客户现场需求确认。</p>
+        </div>
+        <div class="product-grid">
+          <article v-for="group in productGroups" :key="group.title" class="product-card">
+            <h3>{{ group.title }}</h3>
+            <ul>
+              <li v-for="it in group.items" :key="it">{{ it }}</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <!-- 解决方案 -->
       <section id="solutions" class="section">
         <div class="section-head wide">
-          <span class="eyebrow">Solutions</span>
+          <span class="eyebrow">行业解决方案</span>
           <h2>按行业场景做快检室方案，而不是堆设备清单</h2>
           <p>不同客户真正需要的不一样：有的重检测，有的重开证，有的重资料留存，有的重现场培训。官网先展示方向，具体配置按项目沟通。</p>
         </div>
@@ -239,21 +341,7 @@ onMounted(async () => {
         </div>
       </section>
 
-      <section id="services" class="section service-section">
-        <div class="section-head">
-          <span class="eyebrow">Products & Services</span>
-          <h2>设备、耗材、打印、数据平台，一起考虑才省心</h2>
-          <p>第一版官网不堆大量型号，重点展示服务范围。具体型号、检测项目和数量，按客户现场需求确认。</p>
-        </div>
-        <div class="service-grid">
-          <article v-for="[title, text] in serviceCards" :key="title" class="service-card">
-            <div class="service-icon">{{ title.slice(0, 1) }}</div>
-            <h3>{{ title }}</h3>
-            <p>{{ text }}</p>
-          </article>
-        </div>
-      </section>
-
+      <!-- 谷芯快检云 -->
       <section v-if="settings.show_cloud_module" id="cloud" class="section cloud-section">
         <div class="cloud-copy">
           <span class="eyebrow">谷芯快检云</span>
@@ -277,32 +365,63 @@ onMounted(async () => {
         </div>
       </section>
 
-      <section id="process" class="section process-section">
-        <div class="section-head wide">
-          <span class="eyebrow">Delivery Process</span>
-          <h2>一套更适合项目落地的快检室建设流程</h2>
-          <p>先判断场景，再给配置建议；先跑通流程，再做日常使用。减少客户买回去不会用、用不起来、资料留不住的问题。</p>
+      <!-- 服务项目 -->
+      <section id="services" class="section service-section">
+        <div class="section-head">
+          <span class="eyebrow">服务项目</span>
+          <h2>设备、耗材、打印、数据平台，一起考虑才省心</h2>
+          <p>从建设到运维，谷芯科技把安装、培训、检测对接与远程支持作为标准服务的一部分。</p>
         </div>
-        <div class="process-grid">
-          <article v-for="[num, title, text] in processSteps" :key="num" class="process-card">
-            <span>{{ num }}</span>
+        <div class="service-grid">
+          <article v-for="[title, text] in serviceCards" :key="title" class="service-card">
+            <div class="service-icon">{{ title.slice(0, 1) }}</div>
             <h3>{{ title }}</h3>
             <p>{{ text }}</p>
           </article>
         </div>
-        <div class="package-grid">
-          <article v-for="item in packageTypes" :key="item.title">
-            <span>{{ item.tag }}</span>
+      </section>
+
+      <!-- 新闻动态 -->
+      <section id="news" class="section news-section">
+        <div class="section-head wide">
+          <span class="eyebrow">新闻动态</span>
+          <h2>企业动态、食安科普与产品专题</h2>
+          <p>跟踪谷芯快检云进展、行业法规变化与实用科普，帮助客户用好快检、管好食安。</p>
+        </div>
+        <div class="news-grid">
+          <article v-for="item in newsList" :key="item.title" class="news-card">
+            <div class="news-top">
+              <span class="news-tag">{{ item.tag }}</span>
+              <span class="news-date">{{ item.date }}</span>
+            </div>
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.desc }}</p>
+            <a href="#contact">阅读更多</a>
+          </article>
+        </div>
+      </section>
+
+      <!-- 服务保障 -->
+      <section class="section guarantee-section">
+        <div class="section-head wide">
+          <span class="eyebrow">服务保障</span>
+          <h2>买回去能用、用起来有人管，才是真的配套服务</h2>
+          <p>谷芯科技把安装、培训、耗材补给和远程支持作为标准服务的一部分，降低客户的使用门槛和运维风险。</p>
+        </div>
+        <div class="guarantee-grid">
+          <article v-for="item in guarantees" :key="item.title" class="guarantee-card">
+            <span class="guarantee-dot"></span>
             <h3>{{ item.title }}</h3>
             <p>{{ item.text }}</p>
           </article>
         </div>
       </section>
 
+      <!-- 资料中心 -->
       <section v-if="settings.show_materials" id="materials" class="section">
         <div class="section-head wide">
-          <span class="eyebrow">Downloads</span>
-          <h2>资料中心：方案、产品资料、操作说明统一沉淀</h2>
+          <span class="eyebrow">资料中心</span>
+          <h2>方案、产品资料、操作说明统一沉淀</h2>
           <p>后台公开的资料会出现在这里。后续可逐步补充公司介绍、快检室方案、产品资料和操作说明。</p>
         </div>
         <div v-if="loading" class="empty-card">正在加载资料...</div>
@@ -332,9 +451,10 @@ onMounted(async () => {
         </div>
       </section>
 
+      <!-- 联系我们 -->
       <section id="contact" class="section contact-section">
         <div>
-          <span class="eyebrow">Contact</span>
+          <span class="eyebrow">联系我们</span>
           <h2>把你的使用场景发过来，我们先帮你判断配置方向</h2>
           <p>适合咨询：快检室建设、检测仪器、试剂耗材、合格证打印、谷芯快检云、现有快检室升级。</p>
         </div>
@@ -348,9 +468,42 @@ onMounted(async () => {
     </main>
 
     <footer class="site-footer">
-      <span>© 山西谷芯科技有限公司</span>
-      <span>食品安全快检室整体配套服务</span>
-      <span>备案号待完善</span>
+      <div class="footer-main">
+        <div class="footer-brand">
+          <img class="footer-logo" src="./assets/logo-icon.png" alt="谷芯科技" />
+          <div>
+            <strong>山西谷芯科技有限公司</strong>
+            <span>食品安全快检室整体配套服务</span>
+          </div>
+        </div>
+        <div class="footer-cols">
+          <div>
+            <b>产品中心</b>
+            <a href="#products">检测仪器</a>
+            <a href="#products">试剂耗材</a>
+            <a href="#products">合格证打印</a>
+            <a href="#cloud">谷芯快检云</a>
+          </div>
+          <div>
+            <b>解决方案</b>
+            <a href="#solutions">合作社 / 基地</a>
+            <a href="#solutions">配送企业</a>
+            <a href="#solutions">学校食堂</a>
+            <a href="#solutions">加工企业</a>
+          </div>
+          <div>
+            <b>联系</b>
+            <a :href="`tel:${settings.contact_phone}`">{{ settings.contact_phone }}</a>
+            <a href="#contact">获取方案</a>
+            <a href="#about">关于我们</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© {{ new Date().getFullYear() }} 山西谷芯科技有限公司</span>
+        <span>食品安全快检室整体配套服务</span>
+        <span>备案号待完善</span>
+      </div>
     </footer>
   </div>
 </template>

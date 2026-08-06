@@ -49,9 +49,15 @@ export const detectionRecordDetailInclude = {
       certificateNo: true,
       status: true,
       issueTime: true,
+      publicToken: true,
     },
     orderBy: {
       issueTime: 'desc',
+    },
+  },
+  disposals: {
+    orderBy: {
+      createdAt: 'asc',
     },
   },
 } satisfies Prisma.DetectionRecordInclude;
@@ -128,6 +134,20 @@ export function serializeDetectionRecordDetail(record: DetectionRecordDetail) {
       certificate_no: certificate.certificateNo,
       status: certificate.status,
       issue_time: certificate.issueTime,
+      public_token: certificate.publicToken,
+    })),
+    disposals: (record.disposals || []).map((d) => ({
+      id: d.id.toString(),
+      company_id: d.companyId.toString(),
+      detection_record_id: d.detectionRecordId.toString(),
+      disposition: d.disposition,
+      description: d.description,
+      recheck_record_id: d.recheckRecordId?.toString() || null,
+      status: d.status,
+      handled_by: d.handledBy,
+      handled_at: d.handledAt,
+      created_at: d.createdAt,
+      updated_at: d.updatedAt,
     })),
     created_at: record.createdAt,
     updated_at: record.updatedAt,

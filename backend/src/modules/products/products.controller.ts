@@ -18,7 +18,10 @@ import { ClientAuthGuard } from '../auth/client-auth.guard';
 import { RequestWithAdmin } from '../auth/admin-auth.types';
 import { RequestWithClientUser } from '../auth/client-auth.types';
 import { CreateProductDto } from './dto/create-product.dto';
-import { ClientSaveProductDto } from './dto/client-save-product.dto';
+import {
+  ClientProductListQueryDto,
+  ClientSaveProductDto,
+} from './dto/client-save-product.dto';
 import { ProductQueryDto } from './dto/product-query.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductsService } from './products.service';
@@ -75,8 +78,29 @@ export class ClientProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Get()
-  list(@Req() request: RequestWithClientUser, @Query('keyword') keyword?: string) {
-    return this.productsService.listClient(request, keyword);
+  list(
+    @Req() request: RequestWithClientUser,
+    @Query() query: ClientProductListQueryDto,
+  ) {
+    return this.productsService.listClient(request, query);
+  }
+
+  @Get('meta/categories')
+  categories(@Req() request: RequestWithClientUser) {
+    return this.productsService.listClientCategories(request);
+  }
+
+  @Post('import')
+  import(
+    @Body() body: { rows: ClientSaveProductDto[] },
+    @Req() request: RequestWithClientUser,
+  ) {
+    return this.productsService.batchImportClient(body.rows || [], request);
+  }
+
+  @Post(':id/enable')
+  enable(@Param('id') id: string, @Req() request: RequestWithClientUser) {
+    return this.productsService.enableClient(parseBigIntId(id), request);
   }
 
   @Post()

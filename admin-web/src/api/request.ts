@@ -1,11 +1,17 @@
 import axios, { type AxiosRequestConfig } from 'axios';
 import { ElMessage } from 'element-plus';
 import { clearStoredSession, getStoredToken } from '@/stores/auth';
+import { clearStoredClientSession, getStoredClientToken } from '@/stores/clientAuth';
 import type { ApiResponse } from '@/types/api';
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
 const appBasePath = import.meta.env.BASE_URL || '/';
 
+interface ExtendedRequestConfig extends AxiosRequestConfig {
+  clientAuth?: boolean;
+  skipAuth?: boolean;
+  silent?: boolean;
+}
 
 function normalizeParams(value: unknown): unknown {
   if (!value || typeof value !== 'object') return value;
@@ -31,8 +37,12 @@ const service = axios.create({
 });
 
 service.interceptors.request.use((config) => {
+  const cfg = config as ExtendedRequestConfig;
   config.params = normalizeParams(config.params) as AxiosRequestConfig['params'];
-  const token = getStoredToken();
+  if (cfg.skipAuth === false) {
+    return config;
+  }
+  const token = cfg.clientAuth ? getStoredClientToken() : getStoredToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -55,10 +65,17 @@ service.interceptors.response.use(
     ElMessage.error(message);
 
     if (status === 401) {
-      clearStoredSession();
-      const current = window.location.pathname + window.location.search;
-      if (!window.location.pathname.startsWith(toAppPath('/login'))) {
-        window.location.href = `${toAppPath('/login')}?redirect=${encodeURIComponent(current)}`;
+      const currentPath = window.location.pathname;
+      if (currentPath.startsWith('/client')) {
+        clearStoredClientSession();
+        if (!currentPath.startsWith('/client/login')) {
+          window.location.href = `${toAppPath('/client/login')}?redirect=${encodeURIComponent(currentPath + window.location.search)}`;
+        }
+      } else {
+        clearStoredSession();
+        if (!currentPath.startsWith(toAppPath('/login'))) {
+          window.location.href = `${toAppPath('/login')}?redirect=${encodeURIComponent(currentPath + window.location.search)}`;
+        }
       }
     }
 
@@ -66,7 +83,7 @@ service.interceptors.response.use(
   },
 );
 
-export async function request<T>(config: AxiosRequestConfig) {
+export async function request<T>(config: ExtendedRequestConfig) {
   const response = await service.request<ApiResponse<T>>(config);
   return response.data.data;
 }

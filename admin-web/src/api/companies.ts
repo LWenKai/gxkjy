@@ -110,6 +110,16 @@ export function renewCompany(id: string, serviceExpireAt: string) {
   });
 }
 
+export function updateCompanyClientModules(id: string, modules: string[]) {
+  return request<Company>({
+    url: `/admin/companies/${id}/client-modules`,
+    method: 'PUT',
+    data: {
+      client_modules: modules.join(','),
+    },
+  });
+}
+
 export function listCompanyUsers(companyId: string, params = { page: 1, page_size: 20 }) {
   return request<PageResult<CompanyUser>>({
     url: `/admin/companies/${companyId}/users`,

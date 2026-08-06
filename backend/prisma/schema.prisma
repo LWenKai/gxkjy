@@ -656,14 +656,18 @@ model Company {
   serviceStartAt         DateTime?       @map("service_start_at")
   serviceExpireAt        DateTime        @map("service_expire_at")
   defaultCertificateType CertificateType @default(enterprise_quick_test_label) @map("default_certificate_type")
+  clientModules          String          @default("unit,detection,certificate") @map("client_modules") @db.VarChar(255)
   createdAt              DateTime        @default(now()) @map("created_at")
   updatedAt              DateTime        @updatedAt @map("updated_at")
 
   users            CompanyUser[]
   devices          Device[]
-  detectionRecords DetectionRecord[]
-  certificates     Certificate[]
-  products         Product[]
+  detectionRecords       DetectionRecord[]
+  detectionRecordDisposals DetectionRecordDisposal[]
+  certificates           Certificate[]
+  products               Product[]
+  productCategories      ProductCategory[]
+  productArchives        ProductArchive[]
   profile          CompanyProfile?
   fileAssets       FileAsset[]
   printers         Printer[]
@@ -758,6 +762,7 @@ model DetectionRecord {
   device       Device                @relation(fields: [deviceId], references: [id])
   items        DetectionRecordItem[]
   certificates Certificate[]
+  disposals    DetectionRecordDisposal[]
   aiInterpretation AiInterpretationJob?
 
   @@unique([manufacturerCode, deviceSn, manufacturerRecordId])
@@ -786,6 +791,33 @@ model DetectionRecordItem {
   @@index([detectionRecordId])
   @@index([result])
   @@map("detection_record_items")
+}
+
+enum DisposalStatus {
+  pending
+  done
+}
+
+model DetectionRecordDisposal {
+  id                 BigInt           @id @default(autoincrement())
+  companyId          BigInt           @map("company_id")
+  detectionRecordId  BigInt           @map("detection_record_id")
+  disposition        String           @map("disposition") @db.VarChar(40)
+  description        String?          @map("description") @db.VarChar(1000)
+  recheckRecordId    BigInt?          @map("recheck_record_id")
+  status             DisposalStatus   @default(pending)
+  handledBy          String?          @map("handled_by") @db.VarChar(80)
+  handledAt          DateTime?        @map("handled_at")
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+
+  company         Company         @relation(fields: [companyId], references: [id])
+  detectionRecord DetectionRecord @relation(fields: [detectionRecordId], references: [id])
+
+  @@index([companyId])
+  @@index([detectionRecordId])
+  @@index([status])
+  @@map("detection_record_disposals")
 }
 
 model AiInterpretationJob {
@@ -894,9 +926,46 @@ model Product {
 
   company Company @relation(fields: [companyId], references: [id])
 
-  @@unique([companyId, productName])
+  @@index([companyId])
+  @@index([productName])
+  @@index([productCategory])
   @@index([status])
   @@map("products")
+}
+
+// 企业自定义产品分类字典（用于产品库分类下拉，保证录入统一）
+model ProductCategory {
+  id        BigInt   @id @default(autoincrement())
+  companyId BigInt   @map("company_id")
+  name      String   @map("name") @db.VarChar(80)
+  sort      Int      @default(0) @map("sort")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@unique([companyId, name])
+  @@index([companyId])
+  @@map("product_categories")
+}
+
+model ProductArchive {
+  id              BigInt        @id @default(autoincrement())
+  companyId       BigInt        @map("company_id")
+  productName     String        @map("product_name") @db.VarChar(120)
+  productCategory String?       @map("product_category") @db.VarChar(80)
+  specModel       String?       @map("spec_model") @db.VarChar(120)
+  defaultOrigin   String?       @map("default_origin") @db.VarChar(255)
+  defaultUnit     String        @default("kg") @map("default_unit") @db.VarChar(20)
+  remark          String?       @db.VarChar(500)
+  status          ProductStatus @default(normal)
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@index([companyId])
+  @@map("product_archives")
 }
 
 model CompanyProfile {

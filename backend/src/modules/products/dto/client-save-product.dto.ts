@@ -8,6 +8,16 @@ export class ClientSaveProductDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(80)
+  product_category?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  spec_model?: string;
+
+  @IsOptional()
+  @IsString()
   @MaxLength(20)
   default_unit?: string;
 
@@ -21,3 +31,18 @@ export class ClientSaveProductDto {
   @MaxLength(500)
   remark?: string;
 }
+
+export class ClientProductListQueryDto {
+  @IsOptional()
+  @IsString()
+  keyword?: string;
+
+  @IsOptional()
+  @IsString()
+  category?: string;
+
+  @IsOptional()
+  @IsString()
+  status?: 'normal' | 'disabled' | 'all';
+}
+

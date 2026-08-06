@@ -9,6 +9,7 @@ import { mkdir, unlink, writeFile } from 'fs/promises';
 import { extname, join, resolve } from 'path';
 import { Prisma } from '../../generated/prisma';
 import { RequestWithAdmin } from '../auth/admin-auth.types';
+import { ClientRequestUser } from '../auth/client-auth.types';
 import { OperationLogsService } from '../operation-logs/operation-logs.service';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -357,5 +358,196 @@ export class CompanyProfilesService {
     } catch {
       // 文件可能已被人工清理，数据库软删除仍然有效。
     }
+  }
+
+  // ===== 客户端（企业账号）自助维护公开资料，仅可操作本企业 =====
+
+  async clientUpdateProfile(
+    clientUser: ClientRequestUser,
+    dto: UpdateCompanyProfileDto,
+  ) {
+    const companyId = clientUser.companyId;
+    await this.ensureCompanyExists(companyId);
+    await this.prisma.companyProfile.upsert({
+      where: { companyId },
+      create: {
+        companyId,
+        intro: dto.intro || null,
+        mainProducts: dto.main_products || null,
+        displayAddress: dto.display_address || null,
+        displayPhone: dto.display_phone || null,
+        qualificationDescription: dto.qualification_description || null,
+        isPublicEnabled: dto.is_public_enabled || false,
+      },
+      update: {
+        intro: dto.intro || null,
+        mainProducts: dto.main_products || null,
+        displayAddress: dto.display_address || null,
+        displayPhone: dto.display_phone || null,
+        qualificationDescription: dto.qualification_description || null,
+        isPublicEnabled: dto.is_public_enabled || false,
+      },
+    });
+
+    await this.writeClientLog(clientUser, companyId, 'company_profile.update', dto);
+    return this.getProfile(companyId);
+  }
+
+  async clientUploadFile(
+    clientUser: ClientRequestUser,
+    file: UploadedProfileFile | undefined,
+    dto: UpdateCompanyProfileAssetDto,
+  ) {
+    const companyId = clientUser.companyId;
+    await this.ensureCompanyExists(companyId);
+    if (!file?.buffer) {
+      throw new BadRequestException({
+        message: '请选择要上传的文件',
+        code: 'UPLOAD_FILE_REQUIRED',
+      });
+    }
+
+    const extension = this.resolveExtension(file);
+    const rootDir = this.getUploadRoot();
+    const relativeDir = join('company-profiles', companyId.toString());
+    const targetDir = join(rootDir, relativeDir);
+    await mkdir(targetDir, { recursive: true });
+
+    const randomName = `${Date.now()}-${randomBytes(12).toString('hex')}${extension}`;
+    const targetPath = join(targetDir, randomName);
+    await writeFile(targetPath, file.buffer);
+
+    const storageKey = `company-profiles/${companyId.toString()}/${randomName}`;
+    const fileUrl = `${this.getUploadPublicBaseUrl()}/${storageKey}`;
+    const displayName = dto.file_name || this.sanitizeOriginalName(file.originalname);
+    const asset = await this.prisma.fileAsset.create({
+      data: {
+        companyId,
+        bizType: PROFILE_BIZ_TYPE,
+        fileType: dto.file_type || this.defaultFileType(file.mimetype),
+        fileName: displayName,
+        ossKey: storageKey,
+        fileUrl,
+        mimeType: file.mimetype,
+        fileSize: BigInt(file.size),
+        storageDriver: 'local',
+        isPublic: dto.is_public ?? true,
+        sortOrder: dto.sort_order || 0,
+        uploadedBy: `company_user:${clientUser.id.toString()}`,
+      },
+    });
+
+    await this.writeClientLog(clientUser, companyId, 'company_profile.file_upload', {
+      asset_id: asset.id.toString(),
+      file_type: asset.fileType,
+      mime_type: asset.mimeType,
+      file_size: asset.fileSize?.toString(),
+    });
+
+    return serializeFileAsset(asset);
+  }
+
+  async clientUpdateAsset(
+    clientUser: ClientRequestUser,
+    id: bigint,
+    dto: UpdateCompanyProfileAssetDto,
+  ) {
+    const existing = await this.findOwnedAssetOrThrow(clientUser, id);
+    const data: Prisma.FileAssetUpdateInput = {};
+    if (dto.file_name !== undefined) data.fileName = dto.file_name;
+    if (dto.file_type !== undefined) data.fileType = dto.file_type;
+    if (dto.is_public !== undefined) data.isPublic = dto.is_public;
+    if (dto.sort_order !== undefined) data.sortOrder = dto.sort_order;
+
+    const asset = await this.prisma.fileAsset.update({
+      where: { id },
+      data,
+    });
+
+    await this.writeClientLog(
+      clientUser,
+      existing.companyId!,
+      'company_profile.asset_update',
+      { asset_id: id.toString(), ...dto },
+    );
+
+    return serializeFileAsset(asset);
+  }
+
+  async clientSetAssetPublic(
+    clientUser: ClientRequestUser,
+    id: bigint,
+    isPublic: boolean,
+  ) {
+    const existing = await this.findOwnedAssetOrThrow(clientUser, id);
+    const asset = await this.prisma.fileAsset.update({
+      where: { id },
+      data: { isPublic },
+    });
+
+    await this.writeClientLog(
+      clientUser,
+      existing.companyId!,
+      isPublic ? 'company_profile.asset_enable_public' : 'company_profile.asset_disable_public',
+      { asset_id: id.toString(), is_public: isPublic },
+    );
+
+    return serializeFileAsset(asset);
+  }
+
+  async clientDeleteAsset(clientUser: ClientRequestUser, id: bigint) {
+    const existing = await this.findOwnedAssetOrThrow(clientUser, id);
+    await this.prisma.fileAsset.update({
+      where: { id },
+      data: {
+        deletedAt: new Date(),
+        isPublic: false,
+      },
+    });
+
+    await this.writeClientLog(
+      clientUser,
+      existing.companyId!,
+      'company_profile.file_delete',
+      { asset_id: id.toString(), file_name: existing.fileName },
+    );
+
+    return { deleted: true };
+  }
+
+  private async findOwnedAssetOrThrow(clientUser: ClientRequestUser, id: bigint) {
+    const asset = await this.prisma.fileAsset.findFirst({
+      where: {
+        id,
+        bizType: PROFILE_BIZ_TYPE,
+        companyId: clientUser.companyId,
+        deletedAt: null,
+      },
+    });
+
+    if (!asset) {
+      throw new NotFoundException({
+        message: '公开资料不存在或无权操作',
+        code: 'COMPANY_PROFILE_ASSET_FORBIDDEN',
+      });
+    }
+
+    return asset;
+  }
+
+  private async writeClientLog(
+    clientUser: ClientRequestUser,
+    companyId: bigint,
+    action: string,
+    content?: unknown,
+  ) {
+    await this.operationLogs.writeCompanyUserLog({
+      userId: clientUser.id,
+      targetType: 'company_profile',
+      targetId: companyId,
+      action,
+      content,
+      ip: undefined,
+    });
   }
 }

@@ -44,12 +44,21 @@ export class ProductsService {
     };
   }
 
-  async listClient(request: RequestWithClientUser, keyword?: string) {
-    const where: Prisma.ProductWhereInput = {
-      companyId: request.clientUser!.companyId,
-      status: ProductStatus.normal,
-    };
-    const search = keyword?.trim();
+  async listClient(
+    request: RequestWithClientUser,
+    query?: { keyword?: string; category?: string; status?: string },
+  ) {
+    const companyId = request.clientUser!.companyId;
+    const where: Prisma.ProductWhereInput = { companyId };
+
+    const status = query?.status;
+    if (status === 'disabled') {
+      where.status = ProductStatus.disabled;
+    } else if (status !== 'all') {
+      // 默认（无 status / status=''）只返回正常产品，停用产品需显式开启
+      where.status = ProductStatus.normal;
+    }
+    const search = query?.keyword?.trim();
     if (search) {
       where.OR = [
         { productName: { contains: search } },
@@ -57,15 +66,88 @@ export class ProductsService {
         { remark: { contains: search } },
       ];
     }
+    if (query?.category) {
+      where.productCategory = query.category;
+    }
 
     const items = await this.prisma.product.findMany({
       where,
       include: productInclude,
       orderBy: [{ productName: 'asc' }, { createdAt: 'desc' }],
-      take: 100,
+      take: 500,
     });
 
     return items.map(serializeProduct);
+  }
+
+  async listClientCategories(request: RequestWithClientUser) {
+    const rows = await this.prisma.productCategory.findMany({
+      where: { companyId: request.clientUser!.companyId },
+      orderBy: [{ sort: 'asc' }, { name: 'asc' }],
+      select: { id: true, name: true },
+    });
+    return rows.map((row) => ({ id: row.id.toString(), name: row.name }));
+  }
+
+  async enableClient(id: bigint, request: RequestWithClientUser) {
+    const companyId = request.clientUser!.companyId;
+    await this.findClientProductByIdOrThrow(id, companyId);
+    const product = await this.prisma.product.update({
+      where: { id },
+      data: { status: ProductStatus.normal },
+      include: productInclude,
+    });
+    await this.operationLogs.writeCompanyUserLog({
+      userId: request.clientUser!.id,
+      targetType: 'product',
+      targetId: product.id,
+      action: 'product.client_enable',
+      content: { product_name: product.productName },
+      ip: request.ip,
+    });
+    return serializeProduct(product);
+  }
+
+  async batchImportClient(
+    rows: Array<{
+      product_name: string;
+      product_category?: string;
+      spec_model?: string;
+      default_unit?: string;
+      origin?: string;
+      remark?: string;
+    }>,
+    request: RequestWithClientUser,
+  ) {
+    const companyId = request.clientUser!.companyId;
+    const results = { total: rows.length, created: 0, updated: 0, failed: 0, errors: [] as string[] };
+
+    for (const row of rows) {
+      const productName = (row.product_name || '').trim();
+      if (!productName) {
+        results.failed += 1;
+        results.errors.push('存在产品名称为空行，已跳过');
+        continue;
+      }
+      try {
+        await this.saveClient(
+          {
+            product_name: productName,
+            product_category: row.product_category?.trim() || undefined,
+            spec_model: row.spec_model?.trim() || undefined,
+            default_unit: row.default_unit?.trim() || undefined,
+            origin: row.origin?.trim() || undefined,
+            remark: row.remark?.trim() || undefined,
+          },
+          request,
+        );
+        results.created += 1;
+      } catch (error) {
+        results.failed += 1;
+        results.errors.push(`${productName}: ${(error as Error).message || '导入失败'}`);
+      }
+    }
+    return results;
   }
 
   async saveClient(dto: ClientSaveProductDto, request: RequestWithClientUser) {
@@ -79,12 +161,10 @@ export class ProductsService {
       });
     }
 
-    const existing = await this.prisma.product.findUnique({
+    const existing = await this.prisma.product.findFirst({
       where: {
-        companyId_productName: {
-          companyId,
-          productName,
-        },
+        companyId,
+        productName,
       },
       include: productInclude,
     });
@@ -93,6 +173,10 @@ export class ProductsService {
       ? await this.prisma.product.update({
           where: { id: existing.id },
           data: {
+            productCategory:
+              dto.product_category !== undefined ? dto.product_category || null : existing.productCategory,
+            specModel:
+              dto.spec_model !== undefined ? dto.spec_model || null : existing.specModel,
             defaultUnit: dto.default_unit || existing.defaultUnit || 'kg',
             defaultOrigin:
               dto.origin !== undefined ? dto.origin || null : existing.defaultOrigin,
@@ -105,6 +189,8 @@ export class ProductsService {
           data: {
             companyId,
             productName,
+            productCategory: dto.product_category || null,
+            specModel: dto.spec_model || null,
             defaultUnit: dto.default_unit || 'kg',
             defaultOrigin: dto.origin || null,
             remark: dto.remark || null,
@@ -147,6 +233,8 @@ export class ProductsService {
         where: { id },
         data: {
           productName,
+          productCategory: dto.product_category || null,
+          specModel: dto.spec_model || null,
           defaultUnit: dto.default_unit || 'kg',
           defaultOrigin: dto.origin || null,
           remark: dto.remark || null,
@@ -392,6 +480,22 @@ export class ProductsService {
     if (!product) {
       throw new NotFoundException({
         message: '产品不存在或已删除',
+        code: 'PRODUCT_NOT_FOUND',
+      });
+    }
+
+    return product;
+  }
+
+  private async findClientProductByIdOrThrow(id: bigint, companyId: bigint) {
+    const product = await this.prisma.product.findFirst({
+      where: { id, companyId },
+      include: productInclude,
+    });
+
+    if (!product) {
+      throw new NotFoundException({
+        message: '产品不存在',
         code: 'PRODUCT_NOT_FOUND',
       });
     }

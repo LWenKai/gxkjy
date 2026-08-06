@@ -1,6 +1,22 @@
 import { Company } from '../../generated/prisma';
 
+export function parseClientModules(raw: unknown): string[] {
+  if (Array.isArray(raw)) {
+    return raw
+      .filter((item): item is string => typeof item === 'string')
+      .filter(Boolean);
+  }
+  if (typeof raw === 'string' && raw.trim()) {
+    return raw
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+  return [];
+}
+
 export function serializeCompany(company: Company) {
+  const modules = parseClientModules(company.clientModules);
   return {
     id: company.id.toString(),
     name: company.name,
@@ -15,6 +31,8 @@ export function serializeCompany(company: Company) {
     service_start_at: company.serviceStartAt,
     service_expire_at: company.serviceExpireAt,
     default_certificate_type: company.defaultCertificateType,
+    client_modules: company.clientModules,
+    modules,
     created_at: company.createdAt,
     updated_at: company.updatedAt,
   };

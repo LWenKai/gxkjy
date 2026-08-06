@@ -11,6 +11,7 @@ import { getPagination } from '../../common/pagination.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { OperationLogsService } from '../operation-logs/operation-logs.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
+import { ClientUpdateCompanyDto } from './dto/client-update-company.dto';
 import { CompanyQueryDto } from './dto/company-query.dto';
 import { RenewCompanyDto } from './dto/renew-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
@@ -113,6 +114,7 @@ export class CompaniesService {
         defaultCertificateType:
           dto.default_certificate_type ||
           CertificateType.agri_commitment_certificate,
+        clientModules: dto.client_modules || 'unit,detection,certificate',
         serviceStartAt,
         serviceExpireAt,
         status: dto.status || CompanyStatus.normal,
@@ -237,6 +239,9 @@ export class CompaniesService {
       data.serviceExpireAt = new Date(dto.service_expire_at);
     }
     if (dto.status !== undefined) data.status = dto.status;
+    if (dto.client_modules !== undefined) {
+      data.clientModules = dto.client_modules || 'unit,detection,certificate';
+    }
 
     const company = await this.prisma.company.update({
       where: { id },
@@ -244,6 +249,54 @@ export class CompaniesService {
     });
 
     await this.writeLog(request, id, 'company.update', dto);
+
+    return serializeCompany(company);
+  }
+
+  async updateClientModules(
+    id: bigint,
+    clientModules: string,
+    request: RequestWithAdmin,
+  ) {
+    await this.findCompanyOrThrow(id);
+
+    const modules = clientModules
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean)
+      .join(',');
+
+    const company = await this.prisma.company.update({
+      where: { id },
+      data: { clientModules: modules || 'unit,detection,certificate' },
+    });
+
+    await this.writeLog(request, id, 'company.update_client_modules', {
+      client_modules: company.clientModules,
+    });
+
+    return serializeCompany(company);
+  }
+
+  async updateClientCompany(
+    companyId: bigint,
+    dto: ClientUpdateCompanyDto,
+  ) {
+    await this.findCompanyOrThrow(companyId);
+
+    const data: Prisma.CompanyUpdateInput = {};
+    if (dto.name !== undefined) data.name = dto.name;
+    if (dto.contact_name !== undefined) data.contactName = dto.contact_name;
+    if (dto.phone !== undefined && dto.phone) data.phone = dto.phone;
+    if (dto.address !== undefined) data.address = dto.address || null;
+    if (dto.origin_address !== undefined) {
+      data.originAddress = dto.origin_address || null;
+    }
+
+    const company = await this.prisma.company.update({
+      where: { id: companyId },
+      data,
+    });
 
     return serializeCompany(company);
   }

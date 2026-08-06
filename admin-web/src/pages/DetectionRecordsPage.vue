@@ -128,6 +128,9 @@
             :closable="false"
             class="detail-alert"
           />
+          <div class="detail-actions">
+            <el-button type="primary" @click="router.push(`/detection-records/${detail.id}/report`)">生成检测报告</el-button>
+          </div>
           <el-descriptions :column="2" border>
             <el-descriptions-item label="记录编号">{{ detail.record_no }}</el-descriptions-item>
             <el-descriptions-item label="企业名称">{{ detail.company_name || '-' }}</el-descriptions-item>
@@ -174,7 +177,7 @@
 <script setup lang="ts">
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { onMounted, reactive, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { listCompanies } from '@/api/companies';
 import { listDevices } from '@/api/devices';
 import {
@@ -200,6 +203,7 @@ import { formatDateTime, toIsoString } from '@/utils/time';
 type RecordAction = 'mark-abnormal' | 'cancel-abnormal' | 'hide' | 'void' | 'restore';
 
 const route = useRoute();
+const router = useRouter();
 const loading = ref(false);
 const detailLoading = ref(false);
 const exporting = ref(false);

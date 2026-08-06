@@ -89,5 +89,18 @@ export class CompaniesController {
       request,
     );
   }
+
+  @Put(':id/client-modules')
+  updateClientModules(
+    @Param('id') id: string,
+    @Body() body: { client_modules: string },
+    @Req() request: RequestWithAdmin,
+  ) {
+    return this.companiesService.updateClientModules(
+      parseBigIntId(id),
+      body?.client_modules || '',
+      request,
+    );
+  }
 }
 

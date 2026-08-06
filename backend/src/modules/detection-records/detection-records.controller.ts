@@ -2,6 +2,7 @@
   Body,
   Controller,
   Get,
+  HttpStatus,
   Param,
   Post,
   Query,
@@ -19,6 +20,10 @@ import { DetectionRecordsService } from './detection-records.service';
 import { AdminDetectionRecordQueryDto } from './dto/admin-detection-record-query.dto';
 import { ClientDetectionRecordQueryDto } from './dto/client-detection-record-query.dto';
 import { CreateTestDetectionRecordDto } from './dto/create-test-detection-record.dto';
+import {
+  CreateDetectionRecordDisposalDto,
+  UpdateDetectionRecordDisposalDto,
+} from './dto/create-detection-record-disposal.dto';
 
 @UseGuards(AdminAuthGuard)
 @Controller('admin')
@@ -51,6 +56,48 @@ export class ClientDetectionRecordsController {
     return this.detectionRecordsService.listClientRecords(query, request);
   }
 
+  @Get('detection-records/export')
+  async export(
+    @Query() query: ClientDetectionRecordQueryDto,
+    @Query('fields') fields: string | undefined,
+    @Req() request: RequestWithClientUser,
+    @Res() response: CsvResponse,
+  ) {
+    const csv = await this.detectionRecordsService.exportClientRecords(
+      query,
+      request,
+      fields,
+    );
+    if (csv === null) {
+      response.status(HttpStatus.NO_CONTENT).send('');
+      return;
+    }
+    sendCsv(response, `检测记录导出_${todayForFilename()}.csv`, csv);
+  }
+
+  @Get('detection-records/export-excel')
+  async exportExcel(
+    @Query() query: ClientDetectionRecordQueryDto,
+    @Req() request: RequestWithClientUser,
+    @Res() response: any,
+  ) {
+    const buffer = await this.detectionRecordsService.exportClientRecordsExcel(
+      query,
+      request,
+    );
+    response.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    const fileNameUtf8 = `检测记录报表_${todayForFilename()}.xlsx`;
+    const fileNameAscii = `detection-records_${todayForFilename()}.xlsx`;
+    response.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${fileNameAscii}"; filename*=UTF-8''${encodeURIComponent(fileNameUtf8)}`,
+    );
+    response.send(buffer);
+  }
+
   @Get('detection-records/:id')
   get(@Param('id') id: string, @Req() request: RequestWithClientUser) {
     return this.detectionRecordsService.getClientRecord(
@@ -65,6 +112,63 @@ export class ClientDetectionRecordsController {
     @Req() request: RequestWithClientUser,
   ) {
     return this.detectionRecordsService.listCertifiableRecords(query, request);
+  }
+
+  @Get('big-screen')
+  bigScreen(@Req() request: RequestWithClientUser) {
+    return this.detectionRecordsService.getClientBigScreen(request);
+  }
+
+  // -- 不合格处理闭环 --
+
+  @Get('detection-records/:id/disposals')
+  listDisposals(
+    @Param('id') id: string,
+    @Req() request: RequestWithClientUser,
+  ) {
+    return this.detectionRecordsService.listClientRecordDisposals(
+      parseBigIntId(id),
+      request,
+    );
+  }
+
+  @Post('detection-records/:id/disposals')
+  createDisposal(
+    @Param('id') id: string,
+    @Body() dto: CreateDetectionRecordDisposalDto,
+    @Req() request: RequestWithClientUser,
+  ) {
+    return this.detectionRecordsService.createClientRecordDisposal(
+      parseBigIntId(id),
+      dto,
+      request,
+    );
+  }
+
+  @Post('detection-records/:id/disposals/:disposalId')
+  updateDisposal(
+    @Param('id') id: string,
+    @Param('disposalId') disposalId: string,
+    @Body() dto: UpdateDetectionRecordDisposalDto,
+    @Req() request: RequestWithClientUser,
+  ) {
+    return this.detectionRecordsService.updateClientRecordDisposal(
+      parseBigIntId(disposalId),
+      dto,
+      request,
+    );
+  }
+
+  @Post('detection-records/:id/disposals/:disposalId/delete')
+  deleteDisposal(
+    @Param('id') id: string,
+    @Param('disposalId') disposalId: string,
+    @Req() request: RequestWithClientUser,
+  ) {
+    return this.detectionRecordsService.deleteClientRecordDisposal(
+      parseBigIntId(disposalId),
+      request,
+    );
   }
 }
 

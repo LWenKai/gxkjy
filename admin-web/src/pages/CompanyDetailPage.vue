@@ -41,7 +41,7 @@
             </span>
           </el-descriptions-item>
           <el-descriptions-item label="服务到期时间">
-            {{ formatDateTime(company.service_expire_at) }}
+            {{ formatDate(company.service_expire_at) }}
           </el-descriptions-item>
           <el-descriptions-item label="默认合格证类型">
             {{ certificateTypeLabel(company.default_certificate_type) }}
@@ -239,6 +239,25 @@
     <div class="panel">
       <div class="panel-heading">
         <div>
+          <h2>PC 端模块权限</h2>
+          <p>分配给该企业客户的 PC 工作台可见模块，客户登录后仅能看到已勾选的模块。</p>
+        </div>
+        <el-button type="primary" :loading="savingModules" @click="saveClientModules">
+          保存权限
+        </el-button>
+      </div>
+      <el-checkbox-group v-model="clientModules" class="module-check-group">
+        <el-checkbox label="unit">单位信息</el-checkbox>
+        <el-checkbox label="detection">检测记录</el-checkbox>
+        <el-checkbox label="certificate">合格证</el-checkbox>
+        <el-checkbox label="products">企业产品库</el-checkbox>
+        <el-checkbox label="screen">企业大屏</el-checkbox>
+      </el-checkbox-group>
+    </div>
+
+    <div class="panel">
+      <div class="panel-heading">
+        <div>
           <h2>企业账号</h2>
           <p>用于客户微信小程序账号密码登录。</p>
         </div>
@@ -415,7 +434,7 @@
 
     <el-dialog v-model="renewDialogVisible" title="企业续期" width="460px">
       <p class="renew-current">
-        当前到期时间：{{ formatDateTime(company?.service_expire_at) }}
+        当前到期时间：{{ formatDate(company?.service_expire_at) }}
       </p>
       <el-form ref="renewFormRef" :model="renewForm" :rules="renewRules" label-width="120px">
         <el-form-item label="新到期时间" prop="service_expire_at">
@@ -449,6 +468,7 @@ import {
   renewCompany,
   resetCompanyUserPassword,
   updateCompany,
+  updateCompanyClientModules,
 } from '@/api/companies';
 import { createDevice, listDevices } from '@/api/devices';
 import { listManufacturerInterfaces } from '@/api/manufacturerInterfaces';
@@ -460,7 +480,7 @@ import type {
   Device,
   ManufacturerInterface,
 } from '@/types/api';
-import { formatDateTime, isExpired, isExpiringSoon, toIsoString } from '@/utils/time';
+import { formatDate, formatDateTime, isExpired, isExpiringSoon, toIsoString } from '@/utils/time';
 
 const route = useRoute();
 const router = useRouter();
@@ -488,6 +508,8 @@ const loading = ref(false);
 const usersLoading = ref(false);
 const devicesLoading = ref(false);
 const saving = ref(false);
+const savingModules = ref(false);
+const clientModules = ref<string[]>(['unit', 'detection', 'certificate']);
 const userDialogVisible = ref(false);
 const deviceDialogVisible = ref(false);
 const renewDialogVisible = ref(false);
@@ -625,6 +647,10 @@ async function loadCompany() {
     serviceForm.customer_type = company.value.customer_type || '';
     serviceForm.service_note = company.value.service_note || '';
     serviceForm.follow_up_note = company.value.follow_up_note || '';
+    clientModules.value = (company.value.client_modules || 'unit,detection,certificate')
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
   } finally {
     loading.value = false;
   }
@@ -824,6 +850,17 @@ async function submitRenew() {
     renewDialogVisible.value = false;
   } finally {
     saving.value = false;
+  }
+}
+
+async function saveClientModules() {
+  if (!company.value) return;
+  savingModules.value = true;
+  try {
+    company.value = await updateCompanyClientModules(companyId, clientModules.value);
+    ElMessage.success('PC 端模块权限已保存');
+  } finally {
+    savingModules.value = false;
   }
 }
 

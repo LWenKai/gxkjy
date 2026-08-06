@@ -26,6 +26,83 @@ export interface LoginResult {
   admin_user: AdminUser;
 }
 
+export type ClientModuleKey = 'unit' | 'detection' | 'certificate';
+
+export interface ClientCompany {
+  id: string;
+  name: string;
+  contact_name?: string | null;
+  phone?: string | null;
+  address?: string | null;
+  origin_address?: string | null;
+  service_expire_at: string;
+  default_certificate_type:
+    | 'agri_commitment_certificate'
+    | 'enterprise_quick_test_label';
+  modules: ClientModuleKey[];
+}
+
+export interface ClientUser {
+  id: string;
+  company_id: string;
+  username: string;
+  real_name?: string | null;
+  status: string;
+  last_login_at?: string | null;
+}
+
+export interface ClientLoginResult {
+  access_token: string;
+  company_user: ClientUser;
+  company: ClientCompany;
+  expire_warning?: {
+    days_left: number;
+    service_expire_at: string;
+  } | null;
+}
+
+export interface ClientDashboardSummary {
+  company: ClientCompany | null;
+  service: {
+    status: string;
+    expire_at?: string | null;
+    expire_warning?: {
+      days_left: number;
+      service_expire_at: string;
+    } | null;
+  };
+  stats: {
+    today_detection_count: number;
+    certifiable_count: number;
+    today_certificate_count: number;
+  };
+  recent_detection_records: DetectionRecord[];
+  recent_certificates: Certificate[];
+}
+
+export interface ClientCompanyProfileAsset {
+  id: string;
+  file_type: string;
+  file_name: string;
+  file_url: string;
+  is_public: boolean;
+  sort_order: number;
+}
+
+export interface ClientCompanyProfile {
+  intro: string;
+  main_products: string;
+  display_address: string;
+  display_phone: string;
+  qualification_description: string;
+  is_public_enabled: boolean;
+  assets: ClientCompanyProfileAsset[];
+}
+
+export interface ClientChangePasswordResult {
+  updated: boolean;
+}
+
 export type CustomerType =
   | 'DELIVERY_COMPANY'
   | 'FOOD_PROCESSING'
@@ -423,6 +500,7 @@ export interface Company {
   default_certificate_type:
     | 'agri_commitment_certificate'
     | 'enterprise_quick_test_label';
+  client_modules?: string;
   created_at: string;
   updated_at: string;
 }
@@ -528,6 +606,7 @@ export interface DetectionRecordCertificateSummary {
   certificate_no: string;
   status: CertificateStatusValue;
   issue_time: string;
+  public_token?: string;
 }
 
 export interface DetectionRecord {
@@ -843,4 +922,69 @@ export interface WebsiteSettings {
   company_intro: string;
   show_materials: boolean;
   show_cloud_module: boolean;
+}
+
+export interface BigScreenRecentRecord {
+  id: string;
+  record_no: string;
+  sample_name: string | null;
+  product_name: string;
+  overall_result: DetectionResultValue;
+  test_time: string;
+  device_name: string | null;
+  certificate_count: number;
+}
+
+export interface BigScreenRecentCertificate {
+  id: string;
+  certificate_no: string;
+  product_name: string;
+  origin: string | null;
+  issue_time: string;
+  public_token: string;
+}
+
+export interface BigScreenAbnormalRecord {
+  id: string;
+  record_no: string;
+  sample_name: string | null;
+  product_name: string;
+  test_time: string;
+  device_name: string | null;
+}
+
+export interface BigScreenTrendPoint {
+  date: string;
+  total: number;
+  pass: number;
+}
+
+export interface BigScreenCategory {
+  name: string;
+  count: number;
+}
+
+export interface BigScreenDevice {
+  name: string;
+  status: string;
+  online: boolean;
+  last_upload_at?: string | null;
+}
+
+export interface BigScreenData {
+  total_count: number;
+  pass_count: number;
+  pass_rate: number | null;
+  today_count: number;
+  today_pass_count: number;
+  today_pass_rate: number | null;
+  certificate_count: number;
+  device_count: number;
+  online_device_count: number;
+  trend: BigScreenTrendPoint[];
+  categories: BigScreenCategory[];
+  devices: BigScreenDevice[];
+  recent_records: BigScreenRecentRecord[];
+  recent_certificates: BigScreenRecentCertificate[];
+  abnormal_records: BigScreenAbnormalRecord[];
 }

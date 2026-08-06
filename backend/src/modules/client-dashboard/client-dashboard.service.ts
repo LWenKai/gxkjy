@@ -6,6 +6,7 @@ import {
   detectionRecordListInclude,
   serializeDetectionRecord,
 } from '../detection-records/detection-records.serializer';
+import { serializeCompany } from '../companies/companies.serializer';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -122,5 +123,15 @@ export class ClientDashboardService {
         return item;
       }),
     };
+  }
+
+  async getCompany(request: RequestWithClientUser) {
+    const company = await this.prisma.company.findUnique({
+      where: { id: request.clientUser!.companyId },
+    });
+    if (!company) {
+      throw new Error('企业不存在');
+    }
+    return serializeCompany(company);
   }
 }

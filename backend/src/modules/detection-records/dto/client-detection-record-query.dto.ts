@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsDateString, IsEnum, IsOptional, IsString } from 'class-validator';
 import { PaginationDto } from '../../../common/pagination.dto';
 import { emptyToUndefined } from '../../../common/query-transform';
 import { DetectionApiResult } from './detection-record-result.dto';
@@ -14,4 +14,19 @@ export class ClientDetectionRecordQueryDto extends PaginationDto {
   @IsString()
   @Transform(emptyToUndefined)
   sample_name?: string;
+
+  @IsOptional()
+  @IsString()
+  @Transform(emptyToUndefined)
+  product_name?: string;
+
+  @IsOptional()
+  @IsDateString()
+  @Transform(emptyToUndefined)
+  date_from?: string;
+
+  @IsOptional()
+  @IsDateString()
+  @Transform(emptyToUndefined)
+  date_to?: string;
 }

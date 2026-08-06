@@ -100,6 +100,7 @@ export class AuthService {
             status: true,
             serviceExpireAt: true,
             defaultCertificateType: true,
+            clientModules: true,
           },
         },
       },
@@ -177,6 +178,10 @@ export class AuthService {
         origin_address: user.company.originAddress,
         service_expire_at: user.company.serviceExpireAt,
         default_certificate_type: user.company.defaultCertificateType,
+        modules: (user.company.clientModules || 'unit,detection,certificate')
+          .split(',')
+          .map((item) => item.trim())
+          .filter(Boolean),
       },
       expire_warning:
         daysLeft <= 30
@@ -190,5 +195,38 @@ export class AuthService {
 
   getJwtSecret() {
     return this.configService.get<string>('JWT_SECRET', '');
+  }
+
+  async changeClientPassword(
+    userId: bigint,
+    oldPassword: string,
+    newPassword: string,
+  ) {
+    const user = await this.prisma.companyUser.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException({
+        message: '账号不存在',
+        code: 'CLIENT_UNAUTHORIZED',
+      });
+    }
+
+    const oldMatched = await bcrypt.compare(oldPassword, user.passwordHash);
+    if (!oldMatched) {
+      throw new UnauthorizedException({
+        message: '原密码不正确',
+        code: 'INVALID_OLD_PASSWORD',
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+    await this.prisma.companyUser.update({
+      where: { id: userId },
+      data: { passwordHash },
+    });
+
+    return { updated: true };
   }
 }

@@ -2,6 +2,7 @@ type CsvValue = string | number | boolean | Date | null | undefined;
 
 export interface CsvResponse {
   setHeader(name: string, value: string): void;
+  status(code: number): CsvResponse;
   send(body: string): void;
 }
 

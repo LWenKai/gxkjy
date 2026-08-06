@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import { useClientAuthStore } from '@/stores/clientAuth';
 
 export const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -9,6 +10,29 @@ export const router = createRouter({
       name: 'login',
       component: () => import('@/pages/LoginPage.vue'),
       meta: { public: true },
+    },
+    {
+      path: '/client/login',
+      name: 'client-login',
+      component: () => import('@/pages/ClientLoginPage.vue'),
+      meta: { public: true, client: true },
+    },
+    {
+      path: '/client',
+      component: () => import('@/layouts/ClientLayout.vue'),
+      redirect: '/client/dashboard',
+      meta: { client: true },
+      children: [
+        { path: 'dashboard', name: 'client-dashboard', component: () => import('@/pages/ClientDashboardPage.vue'), meta: { title: '工作台首页', client: true } },
+        { path: 'unit', name: 'client-unit', component: () => import('@/pages/ClientUnitPage.vue'), meta: { title: '单位信息', client: true } },
+        { path: 'company-profile', name: 'client-company-profile', component: () => import('@/pages/ClientCompanyProfilePage.vue'), meta: { title: '公开资料', client: true } },
+        { path: 'detection-records', name: 'client-detection-records', component: () => import('@/pages/ClientDetectionRecordsPage.vue'), meta: { title: '检测记录', client: true } },
+        { path: 'detection-records/:id/report', name: 'client-detection-report', component: () => import('@/pages/ClientDetectionReportPage.vue'), meta: { title: '检测报告', client: true } },
+        { path: 'certificates', name: 'client-certificates', component: () => import('@/pages/ClientCertificatesPage.vue'), meta: { title: '合格证', client: true } },
+        { path: 'products', name: 'client-products', component: () => import('@/pages/ClientProductsPage.vue'), meta: { title: '企业产品库', client: true } },
+        { path: 'big-screen', name: 'client-big-screen', component: () => import('@/pages/ClientBigScreenPage.vue'), meta: { title: '企业大屏', client: true } },
+        { path: 'change-password', name: 'client-change-password', component: () => import('@/pages/ClientChangePasswordPage.vue'), meta: { title: '修改密码', client: true } },
+      ],
     },
     {
       path: '/',
@@ -29,6 +53,7 @@ export const router = createRouter({
         { path: 'devices', name: 'devices', component: () => import('@/pages/DevicesPage.vue'), meta: { title: '\u8bbe\u5907\u7ba1\u7406' } },
         { path: 'printers', name: 'printers', component: () => import('@/pages/PrintersPage.vue'), meta: { title: '\u6253\u5370\u8bbe\u5907\u7ba1\u7406' } },
         { path: 'detection-records', name: 'detection-records', component: () => import('@/pages/DetectionRecordsPage.vue'), meta: { title: '\u68c0\u6d4b\u8bb0\u5f55' } },
+        { path: 'detection-records/:id/report', name: 'detection-report', component: () => import('@/pages/DetectionReportPage.vue'), meta: { title: '\u68c0\u6d4b\u62a5\u544a' } },
         { path: 'test-detection-records/create', name: 'test-detection-record-create', component: () => import('@/pages/TestDetectionRecordCreatePage.vue'), meta: { title: '\u6d4b\u8bd5\u4e2d\u5fc3' } },
         { path: 'certificates', name: 'certificates', component: () => import('@/pages/CertificatesPage.vue'), meta: { title: '\u5408\u683c\u8bc1\u7ba1\u7406' } },
         { path: 'products', name: 'products', component: () => import('@/pages/ProductsPage.vue'), meta: { title: '\u4ea7\u54c1\u5e93' } },
@@ -48,15 +73,32 @@ export const router = createRouter({
 });
 
 router.beforeEach((to) => {
-  const authStore = useAuthStore();
+  const isClientRoute = Boolean(to.meta.client);
 
   if (to.meta.public) {
+    const authStore = useAuthStore();
+    const clientAuthStore = useClientAuthStore();
     if (to.path === '/login' && authStore.isLoggedIn) {
       return '/dashboard';
+    }
+    if (to.path === '/client/login' && clientAuthStore.isLoggedIn) {
+      return '/client/dashboard';
     }
     return true;
   }
 
+  if (isClientRoute) {
+    const clientAuthStore = useClientAuthStore();
+    if (!clientAuthStore.isLoggedIn) {
+      return {
+        path: '/client/login',
+        query: { redirect: to.fullPath },
+      };
+    }
+    return true;
+  }
+
+  const authStore = useAuthStore();
   if (!authStore.isLoggedIn) {
     return {
       path: '/login',

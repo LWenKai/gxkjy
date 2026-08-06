@@ -66,4 +66,8 @@ export class CreateCompanyDto {
   @IsOptional()
   @IsEnum(CompanyStatus)
   status?: CompanyStatus;
+
+  @IsOptional()
+  @IsString()
+  client_modules?: string;
 }

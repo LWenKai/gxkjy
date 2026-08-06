@@ -65,7 +65,7 @@
         <el-table-column label="服务到期时间" min-width="170">
           <template #default="{ row }: { row: Company }">
             <span :class="expiryClass(row.service_expire_at)">
-              {{ formatDateTime(row.service_expire_at) }}
+              {{ formatDate(row.service_expire_at) }}
             </span>
           </template>
         </el-table-column>
@@ -203,7 +203,7 @@
 
     <el-dialog v-model="renewDialogVisible" title="企业续期" width="460px">
       <p class="renew-current">
-        当前到期时间：{{ formatDateTime(currentCompany?.service_expire_at) }}
+        当前到期时间：{{ formatDate(currentCompany?.service_expire_at) }}
       </p>
       <el-form ref="renewFormRef" :model="renewForm" :rules="renewRules" label-width="120px">
         <el-form-item label="新到期时间" prop="service_expire_at">
@@ -245,6 +245,7 @@ import {
 } from '@/utils/chinaRegions';
 import {
   addYears,
+  formatDate,
   formatDateTime,
   getChinaTodayDate,
   isExpired,
